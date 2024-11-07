@@ -9,4 +9,4 @@ TODO:
 bugs:
 
 - [ ] element goes out of bounds if spawn in a full col
-- [ ] element goes out of bounds if intersection happens during animation
+- [x] element goes out of bounds if intersection happens during animation

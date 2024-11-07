@@ -31,6 +31,8 @@ export class Board {
   }
 
   is_taken(col: number, row: number): boolean {
+    if (col < 0 || col > WIDTH - 1) return false;
+    if (row < 0 || row > HEIGHT - 1) return false;
     return this.board[row][col] === "X";
   }
 

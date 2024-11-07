@@ -1,6 +1,6 @@
-import { CANVAS_HEIGHT, CELL_SIZE, HEIGHT } from "./consts";
-import { GameElement } from "./game_element";
+import { HEIGHT } from "./consts";
 import { ctx } from "./game_context";
+import { GameElement } from "./game_element";
 
 export class Game {
   spawn_element() {

@@ -6,6 +6,18 @@
   var CANVAS_WIDTH = CELL_SIZE * WIDTH;
   var CANVAS_HEIGHT = CELL_SIZE * HEIGHT;
 
+  // src/game_context.ts
+  var ctx = {
+    game: null,
+    game_elements: [],
+    game_moving_element: null,
+    game_root: null,
+    tick_duration: 500,
+    key_pressed: false,
+    last_tick_at: Date.now(),
+    board: null
+  };
+
   // src/styles.ts
   function create_default_styles() {
     return new Styles({
@@ -97,18 +109,6 @@
     }
   };
 
-  // src/game_context.ts
-  var ctx = {
-    game: null,
-    game_elements: [],
-    game_moving_element: null,
-    game_root: null,
-    tick_duration: 500,
-    key_pressed: false,
-    last_tick_at: Date.now(),
-    board: null
-  };
-
   // src/game.ts
   var Game = class {
     spawn_element() {
@@ -179,6 +179,8 @@
       this.board[row][col] = "X";
     }
     is_taken(col, row) {
+      if (col < 0 || col > WIDTH - 1) return false;
+      if (row < 0 || row > HEIGHT - 1) return false;
       return this.board[row][col] === "X";
     }
     log_baord() {
@@ -192,22 +194,30 @@
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft": {
+          if (!ctx.game_moving_element) return;
+          const [col, row] = ctx.game_moving_element.coordinates();
+          if (ctx.board.is_taken(col - 1, row)) return;
           ctx.game_moving_element?.shift_left();
+          ctx.game.check_collisions();
           return;
         }
         case "ArrowRight": {
+          if (!ctx.game_moving_element) return;
+          const [col, row] = ctx.game_moving_element.coordinates();
+          if (ctx.board.is_taken(col + 1, row)) return;
           ctx.game_moving_element?.shift_right();
+          ctx.game.check_collisions();
+          return;
+        }
+        case "ArrowDown": {
+          if (context.key_pressed) return;
+          context.tick_duration = 50;
+          context.key_pressed = true;
           return;
         }
         case "ArrowUp": {
           return;
         }
-      }
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown" && !context.key_pressed) {
-        context.tick_duration = 50;
-        context.key_pressed = true;
       }
     });
     document.addEventListener("keyup", (e) => {
