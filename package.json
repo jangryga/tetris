@@ -1,0 +1,17 @@
+{
+  "name": "5tv",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsx index.ts",
+    "bundle": "esbuild index.ts --bundle --outdir=dist",
+    "bundle:dev": "esbuild index.ts --bundle --outdir=dist --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.3",
+    "esbuild": "^0.23.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
