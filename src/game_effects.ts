@@ -1,23 +1,25 @@
-import { GameContext } from "./game_context";
+import { type GameContext, ctx } from "./game_context";
 
 export function registerGameEffects(context: GameContext) {
   document.addEventListener("keydown", (e) => {
     switch (e.key) {
-      case "LeftArrow": {
-        // move left
+      case "ArrowLeft": {
+        ctx.game_moving_element?.shift_left();
+        return;
       }
-      case "RightArrow": {
-        // move right
+      case "ArrowRight": {
+        ctx.game_moving_element?.shift_right();
+        return;
       }
       case "ArrowUp": {
         // rotate
+        return;
       }
     }
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown" && !context.key_pressed) {
-      console.log("ArrowDown");
       context.tick_duration = 50;
       context.key_pressed = true;
     }

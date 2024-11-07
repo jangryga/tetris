@@ -1,4 +1,9 @@
-import { CELL_SIZE, WIDTH_MULTIPLIER } from "./consts";
+import {
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  CELL_SIZE,
+  WIDTH_MULTIPLIER,
+} from "./consts";
 
 export function create_default_styles() {
   return new Styles({
@@ -33,6 +38,14 @@ export class Styles {
     this.params.top = `${top}px;`;
   }
 
+  set_offset_left() {
+    this.params.left = `${this.get_offset_left() - CELL_SIZE}px;`;
+  }
+
+  set_offset_right() {
+    this.params.left = `${this.get_offset_left() + CELL_SIZE}px;`;
+  }
+
   get_offset_left(): number {
     return Number.parseInt(this.params.left!.slice(0, -3));
   }
@@ -47,3 +60,16 @@ export class Styles {
     return styles.join(" ");
   }
 }
+
+export const init_game_styles = () => {
+  const s = new Styles({
+    backgroundColor: "black;",
+    height: `${CANVAS_HEIGHT}px;`,
+    width: `${CANVAS_WIDTH}px;`,
+    left: null,
+    top: null,
+    margin: "auto;",
+    position: "relative;",
+  });
+  return s.to_styles_string();
+};

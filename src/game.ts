@@ -1,55 +1,44 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH, CELL_SIZE } from "./consts";
 import { GameElement } from "./game_element";
-import { Styles } from "./styles";
+import { ctx } from "./game_context";
 
 export class Game {
-  constructor(
-    public root: HTMLElement,
-    public elements: GameElement[] = [],
-    public moving_element: GameElement | null = null
-  ) {
-    const styles = new Styles({
-      backgroundColor: "black;",
-      height: `${CANVAS_HEIGHT}px;`,
-      width: `${CANVAS_WIDTH}px;`,
-      left: null,
-      top: null,
-      margin: "auto;",
-      position: "relative;",
-    });
-    this.root.setAttribute("style", styles.to_styles_string());
-  }
-
   spawn_element() {
     const el = new GameElement();
-    this.elements.push(el);
-    this.moving_element = el;
+    ctx.game_elements.push(el);
+    ctx.game_moving_element = el;
     this.render();
   }
 
   render() {
-    for (const el of this.elements) {
-      this.root.appendChild(el.html);
+    for (const el of ctx.game_elements) {
+      ctx.root.appendChild(el.html);
     }
   }
 
   check_collisions() {
-    if (this.moving_element === null) return;
+    if (ctx.game_moving_element === null) return;
 
-    const cell_left_offset = this.moving_element?.styles.get_offset_left();
+    const cell_left_offset = ctx.game_moving_element?.styles.get_offset_left();
 
     let col_height =
       CANVAS_HEIGHT -
-      (this.elements.filter(
+      (ctx.game_elements.filter(
         (e) => e.styles.get_offset_left() === cell_left_offset
       ).length -
         1) *
         CELL_SIZE;
 
     const boundary = Math.min(col_height, CANVAS_HEIGHT) - CELL_SIZE;
-    if (this.moving_element?.ceil_distance === boundary) {
-      this.moving_element = null;
+    if (ctx.game_moving_element?.ceil_distance === boundary) {
+      ctx.game_moving_element = null;
       return;
     }
+  }
+
+  update() {
+    if (!ctx.game_moving_element) this.spawn_element();
+    else ctx.game_moving_element?.descent();
+    this.check_collisions();
   }
 }

@@ -1,6 +1,7 @@
 import { Game } from "./game";
-import { GameContext } from "./game_context";
+import { ctx } from "./game_context";
 import { registerGameEffects } from "./game_effects";
+import { init_game_styles } from "./styles";
 import { invariant } from "./utils/invariant";
 
 export function main() {
@@ -8,20 +9,22 @@ export function main() {
 
   invariant(root !== undefined, "Root element not found");
 
-  const game = new Game(root);
+  root.setAttribute("style", init_game_styles());
 
-  registerGameEffects(GameContext);
+  ctx.root = root;
+  ctx.game = new Game();
+
+  registerGameEffects(ctx);
 
   function game_loop() {
     requestAnimationFrame(game_loop);
+
     const now = Date.now();
-    const shouldTick =
-      now - GameContext.last_tick_at > GameContext.tick_duration;
+    const shouldTick = now - ctx.last_tick_at > ctx.tick_duration;
+
     if (!shouldTick) return;
-    GameContext.last_tick_at = now;
-    if (!game.moving_element) game.spawn_element();
-    else game.moving_element?.descent();
-    game.check_collisions();
+    ctx.last_tick_at = now;
+    ctx.game.update();
   }
 
   game_loop();

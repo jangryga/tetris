@@ -4,4 +4,4 @@ TODO:
 - [ ] block colisions
 - [ ] removing complet-levels
 - [ ] score-tracking
-- [ ] move left-right
+- [x] move left-right
