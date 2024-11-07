@@ -2,10 +2,7 @@ import { AsyncLocalStorage } from "async_hooks";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, CELL_SIZE } from "./consts";
 import { create_default_styles, Styles } from "./styles";
 import { invariant } from "./utils/invariant";
-
-async function sleep(ms: number) {
-  return new Promise((resolve, _reject) => setTimeout(resolve, ms));
-}
+import { GameContext } from "./game_context";
 
 interface ElementType {
   html: HTMLDivElement;
@@ -87,13 +84,7 @@ class Game {
   }
 }
 
-export async function main() {
-  let root = document.getElementById("root")!;
-
-  invariant(root !== undefined, "Root element not found");
-
-  const game = new Game(root);
-
+function registerGameEffects(context: GameContext) {
   document.addEventListener("keydown", (e) => {
     switch (e.key) {
       case "LeftArrow": {
@@ -108,32 +99,38 @@ export async function main() {
     }
   });
 
-  let key_pressed = false;
-  let tick_duration = 1000;
-
   document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" && !key_pressed) {
+    if (e.key === "ArrowDown" && !context.key_pressed) {
       console.log("ArrowDown");
-      tick_duration = 100;
-      key_pressed = true;
+      context.tick_duration = 50;
+      context.key_pressed = true;
     }
   });
 
   document.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowDown" && key_pressed) {
-      tick_duration = 1000;
-      key_pressed = false;
+    if (e.key === "ArrowDown" && context.key_pressed) {
+      context.tick_duration = 500;
+      context.key_pressed = false;
     }
   });
+}
 
-  let last_tick_at = Date.now();
+export function main() {
+  let root = document.getElementById("root")!;
+
+  invariant(root !== undefined, "Root element not found");
+
+  const game = new Game(root);
+
+  registerGameEffects(GameContext);
 
   function game_loop() {
     requestAnimationFrame(game_loop);
     const now = Date.now();
-    const shouldTick = now - last_tick_at > tick_duration;
+    const shouldTick =
+      now - GameContext.last_tick_at > GameContext.tick_duration;
     if (!shouldTick) return;
-    last_tick_at = now;
+    GameContext.last_tick_at = now;
     if (!game.moving_element) game.spawn_element();
     else game.moving_element?.descent();
     game.check_collisions();
