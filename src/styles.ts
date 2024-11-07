@@ -1,16 +1,11 @@
-import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  CELL_SIZE,
-  WIDTH_MULTIPLIER,
-} from "./consts";
+import { CANVAS_HEIGHT, CANVAS_WIDTH, CELL_SIZE, WIDTH } from "./consts";
 
 export function create_default_styles() {
   return new Styles({
     backgroundColor: "red;",
     height: `${CELL_SIZE}px;`,
     width: `${CELL_SIZE}px;`,
-    left: `${Math.floor(Math.random() * WIDTH_MULTIPLIER) * CELL_SIZE}px;`,
+    left: `${Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
     margin: null,
     position: "absolute;",
     top: "0px;",

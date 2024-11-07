@@ -1,10 +1,10 @@
 (() => {
   // src/consts.ts
   var CELL_SIZE = 20;
-  var WIDTH_MULTIPLIER = 10;
-  var HEIGHT_MULTIPLIER = 15;
-  var CANVAS_WIDTH = CELL_SIZE * WIDTH_MULTIPLIER;
-  var CANVAS_HEIGHT = CELL_SIZE * HEIGHT_MULTIPLIER;
+  var WIDTH = 10;
+  var HEIGHT = 7;
+  var CANVAS_WIDTH = CELL_SIZE * WIDTH;
+  var CANVAS_HEIGHT = CELL_SIZE * HEIGHT;
 
   // src/styles.ts
   function create_default_styles() {
@@ -12,7 +12,7 @@
       backgroundColor: "red;",
       height: `${CELL_SIZE}px;`,
       width: `${CELL_SIZE}px;`,
-      left: `${Math.floor(Math.random() * WIDTH_MULTIPLIER) * CELL_SIZE}px;`,
+      left: `${Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
       margin: null,
       position: "absolute;",
       top: "0px;"
@@ -101,7 +101,7 @@
     tick_duration: 500,
     key_pressed: false,
     last_tick_at: Date.now(),
-    board_state: []
+    board: null
   };
 
   // src/game.ts
@@ -126,6 +126,7 @@
       const boundary = Math.min(col_height, CANVAS_HEIGHT) - CELL_SIZE;
       if (ctx.game_moving_element?.ceil_distance === boundary) {
         ctx.game_moving_element = null;
+        ctx.board.log_baord();
         return;
       }
     }
@@ -133,6 +134,24 @@
       if (!ctx.game_moving_element) this.spawn_element();
       else ctx.game_moving_element?.descent();
       this.check_collisions();
+    }
+  };
+
+  // src/game_board.ts
+  var Board = class {
+    board = [];
+    constructor() {
+      for (let i = 0; i < HEIGHT; i++) {
+        const level = [];
+        for (let j = 0; j < WIDTH; j++) {
+          level.push("_");
+        }
+        this.board.push(level);
+      }
+    }
+    log_baord() {
+      const str = this.board.map((lvl) => lvl.join(" ")).join("\n");
+      console.log(str);
     }
   };
 
@@ -180,6 +199,7 @@
     root.setAttribute("style", init_game_styles());
     ctx.root = root;
     ctx.game = new Game();
+    ctx.board = new Board();
     registerGameEffects(ctx);
     function game_loop() {
       requestAnimationFrame(game_loop);

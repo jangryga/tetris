@@ -32,6 +32,7 @@ export class Game {
     const boundary = Math.min(col_height, CANVAS_HEIGHT) - CELL_SIZE;
     if (ctx.game_moving_element?.ceil_distance === boundary) {
       ctx.game_moving_element = null;
+      ctx.board.log_baord();
       return;
     }
   }

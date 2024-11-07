@@ -1,5 +1,5 @@
 export const CELL_SIZE = 20;
-export const WIDTH_MULTIPLIER = 10;
-export const HEIGHT_MULTIPLIER = 15;
-export const CANVAS_WIDTH = CELL_SIZE * WIDTH_MULTIPLIER;
-export const CANVAS_HEIGHT = CELL_SIZE * HEIGHT_MULTIPLIER;
+export const WIDTH = 10;
+export const HEIGHT = 7;
+export const CANVAS_WIDTH = CELL_SIZE * WIDTH;
+export const CANVAS_HEIGHT = CELL_SIZE * HEIGHT;

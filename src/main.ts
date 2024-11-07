@@ -1,4 +1,5 @@
 import { Game } from "./game";
+import { Board } from "./game_board";
 import { ctx } from "./game_context";
 import { registerGameEffects } from "./game_effects";
 import { init_game_styles } from "./styles";
@@ -13,6 +14,7 @@ export function main() {
 
   ctx.root = root;
   ctx.game = new Game();
+  ctx.board = new Board();
 
   registerGameEffects(ctx);
 

@@ -1,4 +1,5 @@
 import { Game } from "./game";
+import { Board } from "./game_board";
 import { GameElement } from "./game_element";
 
 export interface GameContext {
@@ -9,7 +10,7 @@ export interface GameContext {
   tick_duration: number;
   key_pressed: boolean;
   last_tick_at: number;
-  board_state: any;
+  board: Board;
 }
 
 export const ctx = {
@@ -20,5 +21,5 @@ export const ctx = {
   tick_duration: 500,
   key_pressed: false,
   last_tick_at: Date.now(),
-  board_state: [],
+  board: null,
 } as unknown as GameContext;

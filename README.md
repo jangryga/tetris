@@ -1,7 +1,7 @@
 TODO:
 
+- [x] move left-right
+- [ ] removing complet-levels
 - [ ] multi-part blocks
 - [ ] block colisions
-- [ ] removing complet-levels
 - [ ] score-tracking
-- [x] move left-right
