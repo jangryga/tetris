@@ -90,6 +90,11 @@
       this.styles.set_offset_right();
       this._update();
     }
+    coordinates() {
+      const col = this.styles.get_offset_left() / CELL_SIZE;
+      const row = this.styles.get_offset_top() / CELL_SIZE;
+      return [col, row];
+    }
   };
 
   // src/game_context.ts
@@ -110,24 +115,33 @@
       const el = new GameElement();
       ctx.game_elements.push(el);
       ctx.game_moving_element = el;
-      this.render();
-    }
-    render() {
-      for (const el of ctx.game_elements) {
-        ctx.root.appendChild(el.html);
-      }
+      ctx.root.appendChild(el.html);
     }
     check_collisions() {
       if (ctx.game_moving_element === null) return;
-      const cell_left_offset = ctx.game_moving_element?.styles.get_offset_left();
-      let col_height = CANVAS_HEIGHT - (ctx.game_elements.filter(
-        (e) => e.styles.get_offset_left() === cell_left_offset
-      ).length - 1) * CELL_SIZE;
-      const boundary = Math.min(col_height, CANVAS_HEIGHT) - CELL_SIZE;
-      if (ctx.game_moving_element?.ceil_distance === boundary) {
+      let [col, row] = ctx.game_moving_element.coordinates();
+      const boundary = row == HEIGHT - 1 || ctx.board.is_taken(col, row + 1);
+      if (boundary) {
+        ctx.board.take(col, row);
+        ctx.board.check_level_completion(row) && this.remove_row(row);
         ctx.game_moving_element = null;
         ctx.board.log_baord();
         return;
+      }
+    }
+    remove_row(row) {
+      const to_remove = [];
+      ctx.game_elements = ctx.game_elements.filter((el) => {
+        const [_, r] = el.coordinates();
+        const keep = r != row;
+        if (!keep) to_remove.push(el);
+        else if (r < row) {
+          el.descent();
+        }
+        return keep;
+      });
+      for (const el of to_remove) {
+        ctx.root.removeChild(el.html);
       }
     }
     update() {
@@ -142,12 +156,30 @@
     board = [];
     constructor() {
       for (let i = 0; i < HEIGHT; i++) {
-        const level = [];
-        for (let j = 0; j < WIDTH; j++) {
-          level.push("_");
-        }
-        this.board.push(level);
+        this.board.push(this.new_level());
       }
+    }
+    new_level() {
+      const level = [];
+      for (let j = 0; j < WIDTH; j++) {
+        level.push("_");
+      }
+      return level;
+    }
+    check_level_completion(idx) {
+      if (!this.board[idx].every((v) => v === "X")) return false;
+      this.board = [
+        this.new_level(),
+        ...this.board.slice(0, idx),
+        ...this.board.slice(idx + 1)
+      ];
+      return true;
+    }
+    take(col, row) {
+      this.board[row][col] = "X";
+    }
+    is_taken(col, row) {
+      return this.board[row][col] === "X";
     }
     log_baord() {
       const str = this.board.map((lvl) => lvl.join(" ")).join("\n");

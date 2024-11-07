@@ -1,7 +1,12 @@
 TODO:
 
 - [x] move left-right
-- [ ] removing complet-levels
-- [ ] multi-part blocks
-- [ ] block colisions
+- [x] removing full-levels
+- [ ] clusters
+- [ ] cluster rotations
 - [ ] score-tracking
+
+bugs:
+
+- [ ] element goes out of bounds if spawn in a full col
+- [ ] element goes out of bounds if intersection happens during animation

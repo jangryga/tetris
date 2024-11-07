@@ -43,4 +43,10 @@ export class GameElement implements ElementType {
     this.styles.set_offset_right();
     this._update();
   }
+
+  coordinates() {
+    const col = this.styles.get_offset_left() / CELL_SIZE;
+    const row = this.styles.get_offset_top() / CELL_SIZE;
+    return [col, row];
+  }
 }
