@@ -42,20 +42,7 @@
     }
   };
 
-  // src/utils/invariant.ts
-  function invariant(condition, message) {
-    if (condition) return;
-    throw new Error(`[Assertion Error] ${message}`);
-  }
-
-  // src/game_context.ts
-  var GameContext = {
-    tick_duration: 500,
-    key_pressed: false,
-    last_tick_at: Date.now()
-  };
-
-  // src/main.ts
+  // src/game_element.ts
   var GameElement = class {
     html;
     styles;
@@ -73,6 +60,8 @@
       this.html.setAttribute("style", this.styles.to_styles_string());
     }
   };
+
+  // src/game.ts
   var Game = class {
     constructor(root, elements = [], moving_element = null) {
       this.root = root;
@@ -113,6 +102,15 @@
       }
     }
   };
+
+  // src/game_context.ts
+  var GameContext = {
+    tick_duration: 500,
+    key_pressed: false,
+    last_tick_at: Date.now()
+  };
+
+  // src/game_effects.ts
   function registerGameEffects(context) {
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
@@ -138,6 +136,14 @@
       }
     });
   }
+
+  // src/utils/invariant.ts
+  function invariant(condition, message) {
+    if (condition) return;
+    throw new Error(`[Assertion Error] ${message}`);
+  }
+
+  // src/main.ts
   function main() {
     let root = document.getElementById("root");
     invariant(root !== void 0, "Root element not found");
