@@ -2,7 +2,7 @@
   // src/consts.ts
   var CELL_SIZE = 20;
   var WIDTH = 10;
-  var HEIGHT = 7;
+  var HEIGHT = 15;
   var CANVAS_WIDTH = CELL_SIZE * WIDTH;
   var CANVAS_HEIGHT = CELL_SIZE * HEIGHT;
 
@@ -19,12 +19,12 @@
   };
 
   // src/styles.ts
-  function create_default_styles() {
+  function create_default_styles(col) {
     return new Styles({
       backgroundColor: "red;",
       height: `${CELL_SIZE}px;`,
       width: `${CELL_SIZE}px;`,
-      left: `${Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
+      left: `${col ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
       margin: null,
       position: "absolute;",
       top: "0px;"
@@ -72,14 +72,14 @@
     return s.to_styles_string();
   };
 
-  // src/game_element.ts
-  var GameElement = class {
+  // src/rectangle.ts
+  var Rectangle = class {
     html;
     styles;
     ceil_distance;
-    constructor() {
+    constructor(params) {
       this.ceil_distance = 0;
-      this.styles = create_default_styles();
+      this.styles = create_default_styles(params?.col);
       this.html = document.createElement("div");
       this.html.setAttribute("style", this.styles.to_styles_string());
     }
@@ -88,6 +88,9 @@
       this.ceil_distance = top + CELL_SIZE;
       this.styles.set_offset_top(top + CELL_SIZE);
       this._update();
+    }
+    render() {
+      ctx.root.appendChild(this.html);
     }
     _update() {
       this.html.setAttribute("style", this.styles.to_styles_string());
@@ -109,25 +112,75 @@
     }
   };
 
-  // src/game.ts
-  var Game = class {
-    spawn_element() {
-      const el = new GameElement();
-      ctx.game_elements.push(el);
-      ctx.game_moving_element = el;
-      ctx.root.appendChild(el.html);
+  // src/clusters.ts
+  var Cluster1 = class {
+    elements;
+    constructor() {
+      const init_col = Math.floor(Math.random() * (WIDTH - 2));
+      const r1 = new Rectangle({ col: init_col });
+      const r2 = new Rectangle({ col: init_col + 1 });
+      const r3 = new Rectangle({ col: init_col + 1 });
+      const r4 = new Rectangle({ col: init_col + 2 });
+      r3.descent();
+      r4.descent();
+      this.elements = [r1, r2, r3, r4];
+      this.check_collisions();
+    }
+    render() {
+      this.elements.forEach((el) => el.render());
+    }
+    rotate() {
+    }
+    descent() {
+      for (const e of this.elements) {
+        e.descent();
+      }
+      this.check_collisions();
+    }
+    bottom_row() {
+      return Math.max(...this.elements.map((el) => el.coordinates()[1]));
     }
     check_collisions() {
       if (ctx.game_moving_element === null) return;
-      let [col, row] = ctx.game_moving_element.coordinates();
-      const boundary = row == HEIGHT - 1 || ctx.board.is_taken(col, row + 1);
-      if (boundary) {
-        ctx.board.take(col, row);
-        ctx.board.check_level_completion(row) && this.remove_row(row);
+      const row = this.bottom_row();
+      const coordinates = this.elements.map((e) => e.coordinates());
+      const exposed_coordinates = [];
+      for (const c of coordinates) {
+        const element_below = coordinates.find(
+          (e) => e[0] === c[0] && e[1] === c[1] + 1
+        );
+        if (!element_below) exposed_coordinates.push(c);
+      }
+      const collision = row == HEIGHT - 1 || exposed_coordinates.map((c) => ctx.board.is_taken(c[0], c[1] + 1)).some((found_colision) => found_colision);
+      if (collision) {
+        const rows = /* @__PURE__ */ new Set();
+        this.elements.forEach((e) => {
+          const [col, row2] = e.coordinates();
+          rows.add(row2);
+          ctx.board.take(col, row2);
+        });
+        rows.forEach(
+          (row2) => ctx.board.check_level_completion(row2) && ctx.game.remove_row(row2)
+        );
         ctx.game_moving_element = null;
         ctx.board.log_baord();
         return;
       }
+    }
+  };
+
+  // src/game.ts
+  var elements = [Cluster1];
+  var Game = class {
+    spawn_element() {
+      const el = this.roll_element();
+      ctx.game_elements.push(el);
+      ctx.game_moving_element = el;
+      el.render();
+    }
+    roll_element() {
+      const idx = Math.floor(Math.random() * elements.length);
+      return new elements[idx]();
     }
     remove_row(row) {
       const to_remove = [];
@@ -147,7 +200,6 @@
     update() {
       if (!ctx.game_moving_element) this.spawn_element();
       else ctx.game_moving_element?.descent();
-      this.check_collisions();
     }
   };
 

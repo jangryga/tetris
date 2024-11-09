@@ -1,12 +1,14 @@
 import { Game } from "./game";
 import { Board } from "./game_board";
-import { GameElement } from "./game_element";
+import { Cluster1 } from "./clusters";
+
+export type Shape = Cluster1;
 
 export interface GameContext {
   root: HTMLElement;
   game: Game;
-  game_elements: GameElement[];
-  game_moving_element: GameElement | null;
+  game_elements: Shape[];
+  game_moving_element: Shape | null;
   tick_duration: number;
   key_pressed: boolean;
   last_tick_at: number;

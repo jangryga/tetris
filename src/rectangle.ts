@@ -1,21 +1,23 @@
-import { CANVAS_WIDTH, CELL_SIZE } from "./consts";
+import { CANVAS_WIDTH, CELL_SIZE, HEIGHT } from "./consts";
+import { ctx } from "./game_context";
 import { create_default_styles, Styles } from "./styles";
 
-interface ElementType {
+interface BaseMethods {
   html: HTMLDivElement;
   styles: Styles;
   ceil_distance: number;
   descent: () => void;
+  render: () => void;
 }
 
-export class GameElement implements ElementType {
+export class Rectangle implements BaseMethods {
   html: HTMLDivElement;
   styles: Styles;
   ceil_distance: number;
 
-  constructor() {
+  constructor(params?: { col: number }) {
     this.ceil_distance = 0;
-    this.styles = create_default_styles();
+    this.styles = create_default_styles(params?.col);
     this.html = document.createElement("div");
 
     this.html.setAttribute("style", this.styles.to_styles_string());
@@ -26,6 +28,10 @@ export class GameElement implements ElementType {
     this.ceil_distance = top + CELL_SIZE;
     this.styles.set_offset_top(top + CELL_SIZE);
     this._update();
+  }
+
+  render() {
+    ctx.root.appendChild(this.html);
   }
 
   _update() {

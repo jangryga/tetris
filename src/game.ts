@@ -1,32 +1,23 @@
-import { HEIGHT } from "./consts";
-import { ctx } from "./game_context";
-import { GameElement } from "./game_element";
+import { Cluster1 } from "./clusters";
+import { ctx, Shape } from "./game_context";
+
+const elements = [Cluster1];
 
 export class Game {
   spawn_element() {
-    const el = new GameElement();
+    const el = this.roll_element();
     ctx.game_elements.push(el);
     ctx.game_moving_element = el;
-    ctx.root.appendChild(el.html);
+    el.render();
   }
 
-  check_collisions() {
-    if (ctx.game_moving_element === null) return;
-
-    let [col, row] = ctx.game_moving_element.coordinates();
-    const boundary = row == HEIGHT - 1 || ctx.board.is_taken(col, row + 1);
-    if (boundary) {
-      ctx.board.take(col, row);
-      ctx.board.check_level_completion(row) && this.remove_row(row);
-
-      ctx.game_moving_element = null;
-      ctx.board.log_baord();
-      return;
-    }
+  roll_element(): Shape {
+    const idx = Math.floor(Math.random() * elements.length);
+    return new elements[idx]();
   }
 
   remove_row(row: number) {
-    const to_remove: GameElement[] = [];
+    const to_remove: Shape[] = [];
     ctx.game_elements = ctx.game_elements.filter((el) => {
       const [_, r] = el.coordinates();
       const keep = r != row;
@@ -44,6 +35,5 @@ export class Game {
   update() {
     if (!ctx.game_moving_element) this.spawn_element();
     else ctx.game_moving_element?.descent();
-    this.check_collisions();
   }
 }
