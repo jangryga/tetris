@@ -105,6 +105,11 @@
       this.styles.set_offset_right();
       this._update();
     }
+    /**
+     * Calculates the coordinates based on the offset positions.
+     *
+     * @returns {number[]} in order: [col, row]
+     */
     coordinates() {
       const col = this.styles.get_offset_left() / CELL_SIZE;
       const row = this.styles.get_offset_top() / CELL_SIZE;
@@ -131,11 +136,34 @@
     }
     rotate() {
     }
+    shift_left() {
+      let canShift = true;
+      for (const e of this.elements) {
+        const [col, row] = e.coordinates();
+        if (col === 0 || ctx.board.is_taken(col - 1, row)) canShift = false;
+      }
+      if (!canShift) return;
+      for (const e of this.elements) {
+        e.shift_left();
+      }
+    }
+    shift_right() {
+      let canShift = true;
+      for (const e of this.elements) {
+        const [col, row] = e.coordinates();
+        if (col === WIDTH - 1 || ctx.board.is_taken(col + 1, row))
+          canShift = false;
+      }
+      if (!canShift) return;
+      for (const e of this.elements) {
+        e.shift_right();
+      }
+    }
     descent() {
       for (const e of this.elements) {
         e.descent();
       }
-      this.check_collisions();
+      setTimeout(() => this.check_collisions(), 50);
     }
     bottom_row() {
       return Math.max(...this.elements.map((el) => el.coordinates()[1]));
@@ -159,8 +187,10 @@
           rows.add(row2);
           ctx.board.take(col, row2);
         });
-        rows.forEach(
-          (row2) => ctx.board.check_level_completion(row2) && ctx.game.remove_row(row2)
+        ctx.game.remove_rows(
+          Array.from(rows).filter(
+            (r) => ctx.board.check_level_completion(r)
+          )
         );
         ctx.game_moving_element = null;
         ctx.board.log_baord();
@@ -173,23 +203,30 @@
   var elements = [Cluster1];
   var Game = class {
     spawn_element() {
-      const el = this.roll_element();
-      ctx.game_elements.push(el);
-      ctx.game_moving_element = el;
-      el.render();
+      const cluster = this.roll_element();
+      for (const rect of cluster.elements) {
+        ctx.game_elements.push(rect);
+      }
+      ctx.game_moving_element = cluster;
+      cluster.render();
     }
     roll_element() {
       const idx = Math.floor(Math.random() * elements.length);
       return new elements[idx]();
     }
-    remove_row(row) {
+    remove_rows(rows) {
+      if (rows.length === 0) return;
       const to_remove = [];
       ctx.game_elements = ctx.game_elements.filter((el) => {
         const [_, r] = el.coordinates();
-        const keep = r != row;
+        const keep = !rows.includes(r);
         if (!keep) to_remove.push(el);
-        else if (r < row) {
-          el.descent();
+        else {
+          for (const row of rows) {
+            if (r < row) {
+              el.descent();
+            }
+          }
         }
         return keep;
       });
@@ -247,20 +284,10 @@
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
         case "ArrowLeft": {
-          if (!ctx.game_moving_element) return;
-          const [col, row] = ctx.game_moving_element.coordinates();
-          if (ctx.board.is_taken(col - 1, row)) return;
-          ctx.game_moving_element?.shift_left();
-          ctx.game.check_collisions();
-          return;
+          return ctx.game_moving_element?.shift_left();
         }
         case "ArrowRight": {
-          if (!ctx.game_moving_element) return;
-          const [col, row] = ctx.game_moving_element.coordinates();
-          if (ctx.board.is_taken(col + 1, row)) return;
-          ctx.game_moving_element?.shift_right();
-          ctx.game.check_collisions();
-          return;
+          return ctx.game_moving_element?.shift_right();
         }
         case "ArrowDown": {
           if (context.key_pressed) return;
@@ -269,7 +296,7 @@
           return;
         }
         case "ArrowUp": {
-          return;
+          return ctx.game_moving_element?.rotate();
         }
       }
     });

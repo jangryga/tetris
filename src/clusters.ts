@@ -7,6 +7,8 @@ interface ClusterMethods {
   descent: () => void;
   check_collisions: () => void;
   render: () => void;
+  shift_left: () => void;
+  shift_right: () => void;
 }
 
 export class Cluster1 implements ClusterMethods {
@@ -33,14 +35,46 @@ export class Cluster1 implements ClusterMethods {
     // todo
   }
 
+  shift_left() {
+    let canShift = true;
+
+    for (const e of this.elements) {
+      const [col, row] = e.coordinates();
+      if (col === 0 || ctx.board.is_taken(col - 1, row)) canShift = false;
+    }
+
+    if (!canShift) return;
+
+    for (const e of this.elements) {
+      e.shift_left();
+    }
+  }
+
+  shift_right() {
+    let canShift = true;
+
+    for (const e of this.elements) {
+      const [col, row] = e.coordinates();
+      if (col === WIDTH - 1 || ctx.board.is_taken(col + 1, row))
+        canShift = false;
+    }
+
+    if (!canShift) return;
+
+    for (const e of this.elements) {
+      e.shift_right();
+    }
+  }
+
   descent() {
     for (const e of this.elements) {
       e.descent();
     }
-    this.check_collisions();
+
+    setTimeout(() => this.check_collisions(), 50);
   }
 
-  bottom_row(): number {
+  private bottom_row(): number {
     return Math.max(...this.elements.map((el) => el.coordinates()[1]));
   }
 
@@ -70,10 +104,10 @@ export class Cluster1 implements ClusterMethods {
         rows.add(row);
         ctx.board.take(col, row);
       });
-      rows.forEach(
-        (row) =>
-          ctx.board.check_level_completion(row as number) &&
-          ctx.game.remove_row(row as number)
+      ctx.game.remove_rows(
+        Array.from(rows).filter((r) =>
+          ctx.board.check_level_completion(r as number)
+        ) as number[]
       );
 
       ctx.game_moving_element = null;

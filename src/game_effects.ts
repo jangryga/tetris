@@ -4,20 +4,10 @@ export function registerGameEffects(context: GameContext) {
   document.addEventListener("keydown", (e) => {
     switch (e.key) {
       case "ArrowLeft": {
-        if (!ctx.game_moving_element) return;
-        const [col, row] = ctx.game_moving_element!.coordinates();
-        if (ctx.board.is_taken(col - 1, row)) return;
-        ctx.game_moving_element?.shift_left();
-        ctx.game.check_collisions();
-        return;
+        return ctx.game_moving_element?.shift_left();
       }
       case "ArrowRight": {
-        if (!ctx.game_moving_element) return;
-        const [col, row] = ctx.game_moving_element!.coordinates();
-        if (ctx.board.is_taken(col + 1, row)) return;
-        ctx.game_moving_element?.shift_right();
-        ctx.game.check_collisions();
-        return;
+        return ctx.game_moving_element?.shift_right();
       }
       case "ArrowDown": {
         if (context.key_pressed) return;
@@ -26,8 +16,7 @@ export function registerGameEffects(context: GameContext) {
         return;
       }
       case "ArrowUp": {
-        // rotate
-        return;
+        return ctx.game_moving_element?.rotate();
       }
     }
   });

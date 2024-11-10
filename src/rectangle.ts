@@ -50,6 +50,11 @@ export class Rectangle implements BaseMethods {
     this._update();
   }
 
+  /**
+   * Calculates the coordinates based on the offset positions.
+   *
+   * @returns {number[]} in order: [col, row]
+   */
   coordinates() {
     const col = this.styles.get_offset_left() / CELL_SIZE;
     const row = this.styles.get_offset_top() / CELL_SIZE;

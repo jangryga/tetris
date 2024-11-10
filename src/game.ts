@@ -1,14 +1,17 @@
 import { Cluster1 } from "./clusters";
 import { ctx, Shape } from "./game_context";
+import { Rectangle } from "./rectangle";
 
 const elements = [Cluster1];
 
 export class Game {
   spawn_element() {
-    const el = this.roll_element();
-    ctx.game_elements.push(el);
-    ctx.game_moving_element = el;
-    el.render();
+    const cluster = this.roll_element();
+    for (const rect of cluster.elements) {
+      ctx.game_elements.push(rect);
+    }
+    ctx.game_moving_element = cluster;
+    cluster.render();
   }
 
   roll_element(): Shape {
@@ -16,14 +19,20 @@ export class Game {
     return new elements[idx]();
   }
 
-  remove_row(row: number) {
-    const to_remove: Shape[] = [];
+  remove_rows(rows: number[]) {
+    if (rows.length === 0) return;
+    const to_remove: Rectangle[] = [];
+
     ctx.game_elements = ctx.game_elements.filter((el) => {
       const [_, r] = el.coordinates();
-      const keep = r != row;
+      const keep = !rows.includes(r);
       if (!keep) to_remove.push(el);
-      else if (r < row) {
-        el.descent();
+      else {
+        for (const row of rows) {
+          if (r < row) {
+            el.descent();
+          }
+        }
       }
       return keep;
     });
