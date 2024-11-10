@@ -33,6 +33,7 @@ export class Game {
   }
 
   update() {
+    if (globalThis.running === false) return;
     if (!ctx.game_moving_element) this.spawn_element();
     else ctx.game_moving_element?.descent();
   }

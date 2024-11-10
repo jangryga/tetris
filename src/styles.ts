@@ -6,7 +6,9 @@ export function create_default_styles(col?: number) {
     height: `${CELL_SIZE}px;`,
     width: `${CELL_SIZE}px;`,
     left: `${
-      col ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE
+      typeof col === "number"
+        ? col * CELL_SIZE
+        : Math.floor(Math.random() * WIDTH) * CELL_SIZE
     }px;`,
     margin: null,
     position: "absolute;",

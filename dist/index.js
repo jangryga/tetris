@@ -24,7 +24,7 @@
       backgroundColor: "red;",
       height: `${CELL_SIZE}px;`,
       width: `${CELL_SIZE}px;`,
-      left: `${col ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
+      left: `${typeof col === "number" ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
       margin: null,
       position: "absolute;",
       top: "0px;"
@@ -198,6 +198,7 @@
       }
     }
     update() {
+      if (globalThis.running === false) return;
       if (!ctx.game_moving_element) this.spawn_element();
       else ctx.game_moving_element?.descent();
     }
