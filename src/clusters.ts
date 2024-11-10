@@ -71,7 +71,8 @@ export class Cluster1 implements ClusterMethods {
       e.descent();
     }
 
-    setTimeout(() => this.check_collisions(), 50);
+    if (ctx.key_pressed) this.check_collisions();
+    else setTimeout(() => this.check_collisions(), 350);
   }
 
   private bottom_row(): number {

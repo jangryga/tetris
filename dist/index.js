@@ -163,7 +163,8 @@
       for (const e of this.elements) {
         e.descent();
       }
-      setTimeout(() => this.check_collisions(), 50);
+      if (ctx.key_pressed) this.check_collisions();
+      else setTimeout(() => this.check_collisions(), 350);
     }
     bottom_row() {
       return Math.max(...this.elements.map((el) => el.coordinates()[1]));
