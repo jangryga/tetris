@@ -40,6 +40,12 @@
     set_offset_top(top) {
       this.params.top = `${top}px;`;
     }
+    set_custom_board_position(col, row) {
+      const left_shift = col * CELL_SIZE;
+      const top_shift = row * CELL_SIZE;
+      this.params.left = `${left_shift}px;`;
+      this.params.top = `${top_shift}px;`;
+    }
     set_offset_left() {
       this.params.left = `${this.get_offset_left() - CELL_SIZE}px;`;
     }
@@ -92,6 +98,10 @@
     render() {
       ctx.root.appendChild(this.html);
     }
+    move_to_coordinates(col, row) {
+      this.styles.set_custom_board_position(col, row);
+      this._update();
+    }
     _update() {
       this.html.setAttribute("style", this.styles.to_styles_string());
     }
@@ -117,9 +127,16 @@
     }
   };
 
+  // src/utils/invariant.ts
+  function invariant(condition, message) {
+    if (condition) return;
+    throw new Error(`[Assertion Error] ${message}`);
+  }
+
   // src/clusters.ts
   var Cluster1 = class {
     elements;
+    rotation = "1";
     constructor() {
       const init_col = Math.floor(Math.random() * (WIDTH - 2));
       const r1 = new Rectangle({ col: init_col });
@@ -134,7 +151,77 @@
     render() {
       this.elements.forEach((el) => el.render());
     }
+    project_rotation() {
+      const b = this.elements.map((e) => e.coordinates());
+      const cs_after = [];
+      switch (this.rotation) {
+        case "1": {
+          cs_after.push([b[0][0] + 2, b[0][1] - 1]);
+          cs_after.push([b[1][0], b[1][1]]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0], b[3][1] - 1]);
+          break;
+        }
+        case "2": {
+          cs_after.push([b[0][0] - 2, b[0][1] + 1]);
+          cs_after.push([b[1][0], b[1][1]]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0], b[3][1] + 1]);
+          break;
+        }
+      }
+      function will_collide(coords) {
+        for (const cs of coords) {
+          if (ctx.board.is_taken(cs[0], cs[1])) return true;
+        }
+        return false;
+      }
+      function project_shift(coords, dir) {
+        const c = JSON.parse(JSON.stringify(coords));
+        for (let i = 0; i < c.length; i++) {
+          if (dir === "left") {
+            c[i] = [c[i][0] - 1, c[i][1]];
+          } else {
+            c[i] = [c[i][0] + 1, c[i][1]];
+          }
+        }
+        return c;
+      }
+      if (!will_collide(cs_after)) {
+        return { coordinates: cs_after };
+      }
+      const cs_after_left_shifted = project_shift(cs_after, "left");
+      if (!will_collide(cs_after_left_shifted)) {
+        return { coordinates: cs_after_left_shifted };
+      }
+      const cs_after_right_shifted = project_shift(cs_after, "right");
+      if (!will_collide(cs_after_right_shifted)) {
+        return { coordinates: cs_after_right_shifted };
+      }
+      return { coordinates: null };
+    }
     rotate() {
+      switch (this.rotation) {
+        case "1": {
+          const { coordinates: new_coords } = this.project_rotation();
+          if (!new_coords) return;
+          this.rotation = "2";
+          return this._move_coordinates(new_coords);
+        }
+        case "2": {
+          const { coordinates: new_coords } = this.project_rotation();
+          if (!new_coords) return;
+          this.rotation = "1";
+          return this._move_coordinates(new_coords);
+        }
+      }
+    }
+    _move_coordinates(coords) {
+      invariant(this.elements.length === coords.length, "rotation error");
+      for (const [idx, e] of this.elements.entries()) {
+        const [col, row] = coords[idx];
+        e.move_to_coordinates(col, row);
+      }
     }
     shift_left() {
       let canShift = true;
@@ -307,12 +394,6 @@
         context.key_pressed = false;
       }
     });
-  }
-
-  // src/utils/invariant.ts
-  function invariant(condition, message) {
-    if (condition) return;
-    throw new Error(`[Assertion Error] ${message}`);
   }
 
   // src/main.ts

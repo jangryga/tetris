@@ -37,6 +37,13 @@ export class Styles {
     this.params.top = `${top}px;`;
   }
 
+  set_custom_board_position(col: number, row: number) {
+    const left_shift = col * CELL_SIZE;
+    const top_shift = row * CELL_SIZE;
+    this.params.left = `${left_shift}px;`;
+    this.params.top = `${top_shift}px;`;
+  }
+
   set_offset_left() {
     this.params.left = `${this.get_offset_left() - CELL_SIZE}px;`;
   }

@@ -34,6 +34,11 @@ export class Rectangle implements BaseMethods {
     ctx.root.appendChild(this.html);
   }
 
+  move_to_coordinates(col: number, row: number) {
+    this.styles.set_custom_board_position(col, row);
+    this._update();
+  }
+
   _update() {
     this.html.setAttribute("style", this.styles.to_styles_string());
   }
@@ -55,7 +60,7 @@ export class Rectangle implements BaseMethods {
    *
    * @returns {number[]} in order: [col, row]
    */
-  coordinates() {
+  coordinates(): number[] {
     const col = this.styles.get_offset_left() / CELL_SIZE;
     const row = this.styles.get_offset_top() / CELL_SIZE;
     return [col, row];
