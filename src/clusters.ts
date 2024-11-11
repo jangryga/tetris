@@ -56,18 +56,21 @@ export class Cluster1 implements ClusterMethods {
 
     function will_collide(coords: number[][]): boolean {
       for (const cs of coords) {
-        if (ctx.board.is_taken(cs[0], cs[1])) return true;
+        if (cs[0] < 0 || cs[1] < 0 || ctx.board.is_taken(cs[0], cs[1]))
+          return true;
       }
       return false;
     }
 
-    function project_shift(coords: number[][], dir: "left" | "right") {
+    function project_shift(coords: number[][], dir: "left" | "right" | "down") {
       const c = JSON.parse(JSON.stringify(coords));
       for (let i = 0; i < c.length; i++) {
         if (dir === "left") {
           c[i] = [c[i][0] - 1, c[i][1]];
-        } else {
+        } else if (dir === "right") {
           c[i] = [c[i][0] + 1, c[i][1]];
+        } else {
+          c[i] = [c[i][0], c[i][1] + 1];
         }
       }
       return c;
@@ -85,6 +88,14 @@ export class Cluster1 implements ClusterMethods {
     const cs_after_right_shifted = project_shift(cs_after, "right");
     if (!will_collide(cs_after_right_shifted)) {
       return { coordinates: cs_after_right_shifted };
+    }
+
+    const cs_after_down_shifted = project_shift(cs_after, "down");
+    if (
+      cs_after.some((c) => c[1] < 0) &&
+      !will_collide(cs_after_down_shifted)
+    ) {
+      return { coordinates: cs_after_down_shifted };
     }
 
     return { coordinates: null };

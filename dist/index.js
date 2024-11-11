@@ -172,7 +172,8 @@
       }
       function will_collide(coords) {
         for (const cs of coords) {
-          if (ctx.board.is_taken(cs[0], cs[1])) return true;
+          if (cs[0] < 0 || cs[1] < 0 || ctx.board.is_taken(cs[0], cs[1]))
+            return true;
         }
         return false;
       }
@@ -181,8 +182,10 @@
         for (let i = 0; i < c.length; i++) {
           if (dir === "left") {
             c[i] = [c[i][0] - 1, c[i][1]];
-          } else {
+          } else if (dir === "right") {
             c[i] = [c[i][0] + 1, c[i][1]];
+          } else {
+            c[i] = [c[i][0], c[i][1] + 1];
           }
         }
         return c;
@@ -197,6 +200,10 @@
       const cs_after_right_shifted = project_shift(cs_after, "right");
       if (!will_collide(cs_after_right_shifted)) {
         return { coordinates: cs_after_right_shifted };
+      }
+      const cs_after_down_shifted = project_shift(cs_after, "down");
+      if (cs_after.some((c) => c[1] < 0) && !will_collide(cs_after_down_shifted)) {
+        return { coordinates: cs_after_down_shifted };
       }
       return { coordinates: null };
     }
