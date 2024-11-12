@@ -14,17 +14,30 @@ export interface ClusterMethods {
 
 export class ClusterBase {
   elements: Rectangle[];
+  rotation_count: number;
+  current_rotation = 0;
+
+  constructor() {
+    this.rotation_count = 4;
+  }
+
+  project_rotation(): { coordinates: number[][] | null } {
+    return { coordinates: null };
+  }
+
+  rotate() {
+    const { coordinates: new_coords } = this.project_rotation();
+    if (!new_coords) return;
+    this.current_rotation =
+      this.current_rotation === this.rotation_count - 1
+        ? 0
+        : this.current_rotation + 1;
+    console.log("new_coords: ", new_coords);
+    return this._move_coordinates(new_coords);
+  }
 
   render() {
     this.elements.forEach((el) => el.render());
-  }
-
-  protected _move_coordinates(coords: number[][]) {
-    invariant(this.elements.length === coords.length, "rotation error");
-    for (const [idx, e] of this.elements.entries()) {
-      const [col, row] = coords[idx];
-      e.move_to_coordinates(col, row);
-    }
   }
 
   shift_left() {
@@ -157,5 +170,16 @@ export class ClusterBase {
     }
 
     return { coordinates: null };
+  }
+
+  protected _move_coordinates(coords: number[][]) {
+    invariant(
+      this.elements.length === coords.length,
+      `[rotation error] expected ${this.elements.length} coordinates, received: ${coords.length}`
+    );
+    for (const [idx, e] of this.elements.entries()) {
+      const [col, row] = coords[idx];
+      e.move_to_coordinates(col, row);
+    }
   }
 }

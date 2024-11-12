@@ -27,15 +27,23 @@
   // src/clusters/cluster_base.ts
   var ClusterBase = class {
     elements;
+    rotation_count;
+    current_rotation = 0;
+    constructor() {
+      this.rotation_count = 4;
+    }
+    project_rotation() {
+      return { coordinates: null };
+    }
+    rotate() {
+      const { coordinates: new_coords } = this.project_rotation();
+      if (!new_coords) return;
+      this.current_rotation = this.current_rotation === this.rotation_count - 1 ? 0 : this.current_rotation + 1;
+      console.log("new_coords: ", new_coords);
+      return this._move_coordinates(new_coords);
+    }
     render() {
       this.elements.forEach((el) => el.render());
-    }
-    _move_coordinates(coords) {
-      invariant(this.elements.length === coords.length, "rotation error");
-      for (const [idx, e] of this.elements.entries()) {
-        const [col, row] = coords[idx];
-        e.move_to_coordinates(col, row);
-      }
     }
     shift_left() {
       let canShift = true;
@@ -136,6 +144,16 @@
         return { coordinates: cs_after_down_shifted };
       }
       return { coordinates: null };
+    }
+    _move_coordinates(coords) {
+      invariant(
+        this.elements.length === coords.length,
+        `[rotation error] expected ${this.elements.length} coordinates, received: ${coords.length}`
+      );
+      for (const [idx, e] of this.elements.entries()) {
+        const [col, row] = coords[idx];
+        e.move_to_coordinates(col, row);
+      }
     }
   };
 
@@ -250,9 +268,9 @@
 
   // src/clusters/cluster1.ts
   var Cluster1 = class extends ClusterBase {
-    rotation = "1";
     constructor() {
       super();
+      this.rotation_count = 2;
       const init_col = Math.floor(Math.random() * (WIDTH - 2));
       const r1 = new Rectangle({ col: init_col });
       const r2 = new Rectangle({ col: init_col + 1 });
@@ -266,15 +284,15 @@
     project_rotation() {
       const b = this.elements.map((e) => e.coordinates());
       const cs_after = [];
-      switch (this.rotation) {
-        case "1": {
+      switch (this.current_rotation) {
+        case 0: {
           cs_after.push([b[0][0] + 2, b[0][1] - 1]);
           cs_after.push([b[1][0], b[1][1]]);
           cs_after.push([b[2][0], b[2][1]]);
           cs_after.push([b[3][0], b[3][1] - 1]);
           break;
         }
-        case "2": {
+        case 1: {
           cs_after.push([b[0][0] - 2, b[0][1] + 1]);
           cs_after.push([b[1][0], b[1][1]]);
           cs_after.push([b[2][0], b[2][1]]);
@@ -284,29 +302,13 @@
       }
       return this.morph_projected_coordiantes(cs_after);
     }
-    rotate() {
-      switch (this.rotation) {
-        case "1": {
-          const { coordinates: new_coords } = this.project_rotation();
-          if (!new_coords) return;
-          this.rotation = "2";
-          return this._move_coordinates(new_coords);
-        }
-        case "2": {
-          const { coordinates: new_coords } = this.project_rotation();
-          if (!new_coords) return;
-          this.rotation = "1";
-          return this._move_coordinates(new_coords);
-        }
-      }
-    }
   };
 
   // src/clusters/cluster2.ts
   var Cluster2 = class extends ClusterBase {
-    rotation = "1";
     constructor() {
       super();
+      this.rotation_count = 4;
       const init_col = Math.floor(Math.random() * (WIDTH - 2));
       const r1 = new Rectangle({ col: init_col });
       const r2 = new Rectangle({ col: init_col + 1 });
@@ -318,61 +320,32 @@
       this.elements = [r1, r2, r3, r4];
       this.check_collisions();
     }
-    rotate() {
-      switch (this.rotation) {
-        case "1": {
-          console.log("rotate 1");
-          const { coordinates: new_coords } = this.project_rotation();
-          if (!new_coords) return;
-          this.rotation = "2";
-          return this._move_coordinates(new_coords);
-        }
-        case "2": {
-          const { coordinates: new_coords } = this.project_rotation();
-          if (!new_coords) return;
-          this.rotation = "3";
-          return this._move_coordinates(new_coords);
-        }
-        case "3": {
-          const { coordinates: new_coords } = this.project_rotation();
-          if (!new_coords) return;
-          this.rotation = "4";
-          return this._move_coordinates(new_coords);
-        }
-        case "4": {
-          const { coordinates: new_coords } = this.project_rotation();
-          if (!new_coords) return;
-          this.rotation = "1";
-          return this._move_coordinates(new_coords);
-        }
-      }
-    }
     project_rotation() {
       const b = this.elements.map((e) => e.coordinates());
       const cs_after = [];
-      switch (this.rotation) {
-        case "1": {
+      switch (this.current_rotation) {
+        case 0: {
           cs_after.push([b[0][0] + 1, b[0][1] + 1]);
           cs_after.push([b[1][0], b[1][1]]);
           cs_after.push([b[2][0], b[2][1]]);
           cs_after.push([b[3][0], b[3][1]]);
           break;
         }
-        case "2": {
+        case 1: {
           cs_after.push([b[0][0], b[0][1]]);
           cs_after.push([b[1][0] - 1, b[1][1] + 1]);
           cs_after.push([b[2][0], b[2][1]]);
           cs_after.push([b[3][0], b[3][1]]);
           break;
         }
-        case "3": {
+        case 2: {
           cs_after.push([b[0][0], b[0][1]]);
           cs_after.push([b[1][0], b[1][1]]);
           cs_after.push([b[2][0], b[2][1]]);
           cs_after.push([b[3][0] - 1, b[3][1] - 1]);
           break;
         }
-        case "4": {
+        case 3: {
           cs_after.push([b[0][0] - 1, b[0][1] - 1]);
           cs_after.push([b[1][0] + 1, b[1][1] - 1]);
           cs_after.push([b[2][0], b[2][1]]);
