@@ -5,6 +5,7 @@
   var HEIGHT = 15;
   var CANVAS_WIDTH = CELL_SIZE * WIDTH;
   var CANVAS_HEIGHT = CELL_SIZE * HEIGHT;
+  var COLORS = ["red", "blue", "green", "yellow", "orange"];
 
   // src/game_context.ts
   var ctx = {
@@ -22,6 +23,9 @@
   function invariant(condition, message) {
     if (condition) return;
     throw new Error(`[Assertion Error] ${message}`);
+  }
+  function random_color() {
+    return COLORS[Math.floor(Math.random() * COLORS.length)];
   }
 
   // src/clusters/cluster_base.ts
@@ -158,9 +162,9 @@
   };
 
   // src/styles.ts
-  function create_default_styles(col) {
+  function create_default_styles(col, color) {
     return new Styles({
-      backgroundColor: "red;",
+      backgroundColor: `${color};`,
       height: `${CELL_SIZE}px;`,
       width: `${CELL_SIZE}px;`,
       left: `${typeof col === "number" ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
@@ -224,7 +228,7 @@
     ceil_distance;
     constructor(params) {
       this.ceil_distance = 0;
-      this.styles = create_default_styles(params?.col);
+      this.styles = create_default_styles(params?.col, params?.color);
       this.html = document.createElement("div");
       this.html.setAttribute("style", this.styles.to_styles_string());
     }
@@ -272,10 +276,11 @@
       super();
       this.rotation_count = 2;
       const init_col = Math.floor(Math.random() * (WIDTH - 2));
-      const r1 = new Rectangle({ col: init_col });
-      const r2 = new Rectangle({ col: init_col + 1 });
-      const r3 = new Rectangle({ col: init_col + 1 });
-      const r4 = new Rectangle({ col: init_col + 2 });
+      const color = random_color();
+      const r1 = new Rectangle({ col: init_col, color });
+      const r2 = new Rectangle({ col: init_col + 1, color });
+      const r3 = new Rectangle({ col: init_col + 1, color });
+      const r4 = new Rectangle({ col: init_col + 2, color });
       r3.descent();
       r4.descent();
       this.elements = [r1, r2, r3, r4];
@@ -310,10 +315,11 @@
       super();
       this.rotation_count = 4;
       const init_col = Math.floor(Math.random() * (WIDTH - 2));
-      const r1 = new Rectangle({ col: init_col });
-      const r2 = new Rectangle({ col: init_col + 1 });
-      const r3 = new Rectangle({ col: init_col + 1 });
-      const r4 = new Rectangle({ col: init_col + 2 });
+      const color = random_color();
+      const r1 = new Rectangle({ col: init_col, color });
+      const r2 = new Rectangle({ col: init_col + 1, color });
+      const r3 = new Rectangle({ col: init_col + 1, color });
+      const r4 = new Rectangle({ col: init_col + 2, color });
       r1.descent();
       r3.descent();
       r4.descent();

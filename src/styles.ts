@@ -1,8 +1,8 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH, CELL_SIZE, WIDTH } from "./consts";
 
-export function create_default_styles(col?: number) {
+export function create_default_styles(col?: number, color?: string) {
   return new Styles({
-    backgroundColor: "red;",
+    backgroundColor: `${color};`,
     height: `${CELL_SIZE}px;`,
     width: `${CELL_SIZE}px;`,
     left: `${

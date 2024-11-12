@@ -15,9 +15,9 @@ export class Rectangle implements BaseMethods {
   styles: Styles;
   ceil_distance: number;
 
-  constructor(params?: { col: number }) {
+  constructor(params?: { col: number; color: string }) {
     this.ceil_distance = 0;
-    this.styles = create_default_styles(params?.col);
+    this.styles = create_default_styles(params?.col, params?.color);
     this.html = document.createElement("div");
 
     this.html.setAttribute("style", this.styles.to_styles_string());
