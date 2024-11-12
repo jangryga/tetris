@@ -1,12 +1,9 @@
 TODO:
 
-- [x] move left-right
-- [x] removing full-levels
-- [ ] clusters
-- [ ] cluster rotations
-- [ ] score-tracking
+- [ ] more clusters [2/5]
+- [ ] score on level completion
+- [ ] game finished: reached top, stop game, show score, restart game
 
 bugs:
 
-- [ ] element goes out of bounds if spawn in a full col
-- [x] element goes out of bounds if intersection happens during animation
+- [ ] randomly rolling new element

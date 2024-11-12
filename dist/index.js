@@ -18,6 +18,127 @@
     board: null
   };
 
+  // src/utils/invariant.ts
+  function invariant(condition, message) {
+    if (condition) return;
+    throw new Error(`[Assertion Error] ${message}`);
+  }
+
+  // src/clusters/cluster_base.ts
+  var ClusterBase = class {
+    elements;
+    render() {
+      this.elements.forEach((el) => el.render());
+    }
+    _move_coordinates(coords) {
+      invariant(this.elements.length === coords.length, "rotation error");
+      for (const [idx, e] of this.elements.entries()) {
+        const [col, row] = coords[idx];
+        e.move_to_coordinates(col, row);
+      }
+    }
+    shift_left() {
+      let canShift = true;
+      for (const e of this.elements) {
+        const [col, row] = e.coordinates();
+        if (col === 0 || ctx.board.is_taken(col - 1, row)) canShift = false;
+      }
+      if (!canShift) return;
+      for (const e of this.elements) {
+        e.shift_left();
+      }
+    }
+    shift_right() {
+      let canShift = true;
+      for (const e of this.elements) {
+        const [col, row] = e.coordinates();
+        if (col === WIDTH - 1 || ctx.board.is_taken(col + 1, row))
+          canShift = false;
+      }
+      if (!canShift) return;
+      for (const e of this.elements) {
+        e.shift_right();
+      }
+    }
+    descent() {
+      for (const e of this.elements) {
+        e.descent();
+      }
+      if (ctx.key_pressed) this.check_collisions();
+      else setTimeout(() => this.check_collisions(), 350);
+    }
+    check_collisions() {
+      if (ctx.game_moving_element === null) return;
+      const row = this.bottom_row();
+      const coordinates = this.elements.map((e) => e.coordinates());
+      const exposed_coordinates = [];
+      for (const c of coordinates) {
+        const element_below = coordinates.find(
+          (e) => e[0] === c[0] && e[1] === c[1] + 1
+        );
+        if (!element_below) exposed_coordinates.push(c);
+      }
+      const collision = row == HEIGHT - 1 || exposed_coordinates.map((c) => ctx.board.is_taken(c[0], c[1] + 1)).some((found_colision) => found_colision);
+      if (collision) {
+        const rows = /* @__PURE__ */ new Set();
+        this.elements.forEach((e) => {
+          const [col, row2] = e.coordinates();
+          rows.add(row2);
+          ctx.board.take(col, row2);
+        });
+        ctx.game.remove_rows(
+          Array.from(rows).filter(
+            (r) => ctx.board.check_level_completion(r)
+          )
+        );
+        ctx.game_moving_element = null;
+        ctx.board.log_baord();
+        return;
+      }
+    }
+    bottom_row() {
+      return Math.max(...this.elements.map((el) => el.coordinates()[1]));
+    }
+    will_collide(coords) {
+      for (const cs of coords) {
+        if (cs[0] < 0 || cs[1] < 0 || ctx.board.is_taken(cs[0], cs[1]))
+          return true;
+      }
+      return false;
+    }
+    project_shift(coords, dir) {
+      const c = JSON.parse(JSON.stringify(coords));
+      for (let i = 0; i < c.length; i++) {
+        if (dir === "left") {
+          c[i] = [c[i][0] - 1, c[i][1]];
+        } else if (dir === "right") {
+          c[i] = [c[i][0] + 1, c[i][1]];
+        } else {
+          c[i] = [c[i][0], c[i][1] + 1];
+        }
+      }
+      return c;
+    }
+    morph_projected_coordiantes(coords) {
+      if (!this.will_collide(coords)) {
+        return { coordinates: coords };
+      }
+      const cs_after_left_shifted = this.project_shift(coords, "left");
+      if (!this.will_collide(cs_after_left_shifted)) {
+        return { coordinates: cs_after_left_shifted };
+      }
+      const cs_after_right_shifted = this.project_shift(coords, "right");
+      if (!this.will_collide(cs_after_right_shifted)) {
+        return { coordinates: cs_after_right_shifted };
+      }
+      const cs_after_down_shifted = this.project_shift(coords, "down");
+      if (coords.some((c) => c[1] < 0) && !this.will_collide(cs_after_down_shifted)) {
+        return { coordinates: cs_after_down_shifted };
+      }
+      return { coordinates: null };
+    }
+  };
+
   // src/styles.ts
   function create_default_styles(col) {
     return new Styles({
@@ -127,17 +248,11 @@
     }
   };
 
-  // src/utils/invariant.ts
-  function invariant(condition, message) {
-    if (condition) return;
-    throw new Error(`[Assertion Error] ${message}`);
-  }
-
-  // src/clusters.ts
-  var Cluster1 = class {
-    elements;
+  // src/clusters/cluster1.ts
+  var Cluster1 = class extends ClusterBase {
     rotation = "1";
     constructor() {
+      super();
       const init_col = Math.floor(Math.random() * (WIDTH - 2));
       const r1 = new Rectangle({ col: init_col });
       const r2 = new Rectangle({ col: init_col + 1 });
@@ -147,9 +262,6 @@
       r4.descent();
       this.elements = [r1, r2, r3, r4];
       this.check_collisions();
-    }
-    render() {
-      this.elements.forEach((el) => el.render());
     }
     project_rotation() {
       const b = this.elements.map((e) => e.coordinates());
@@ -170,42 +282,7 @@
           break;
         }
       }
-      function will_collide(coords) {
-        for (const cs of coords) {
-          if (cs[0] < 0 || cs[1] < 0 || ctx.board.is_taken(cs[0], cs[1]))
-            return true;
-        }
-        return false;
-      }
-      function project_shift(coords, dir) {
-        const c = JSON.parse(JSON.stringify(coords));
-        for (let i = 0; i < c.length; i++) {
-          if (dir === "left") {
-            c[i] = [c[i][0] - 1, c[i][1]];
-          } else if (dir === "right") {
-            c[i] = [c[i][0] + 1, c[i][1]];
-          } else {
-            c[i] = [c[i][0], c[i][1] + 1];
-          }
-        }
-        return c;
-      }
-      if (!will_collide(cs_after)) {
-        return { coordinates: cs_after };
-      }
-      const cs_after_left_shifted = project_shift(cs_after, "left");
-      if (!will_collide(cs_after_left_shifted)) {
-        return { coordinates: cs_after_left_shifted };
-      }
-      const cs_after_right_shifted = project_shift(cs_after, "right");
-      if (!will_collide(cs_after_right_shifted)) {
-        return { coordinates: cs_after_right_shifted };
-      }
-      const cs_after_down_shifted = project_shift(cs_after, "down");
-      if (cs_after.some((c) => c[1] < 0) && !will_collide(cs_after_down_shifted)) {
-        return { coordinates: cs_after_down_shifted };
-      }
-      return { coordinates: null };
+      return this.morph_projected_coordiantes(cs_after);
     }
     rotate() {
       switch (this.rotation) {
@@ -223,79 +300,92 @@
         }
       }
     }
-    _move_coordinates(coords) {
-      invariant(this.elements.length === coords.length, "rotation error");
-      for (const [idx, e] of this.elements.entries()) {
-        const [col, row] = coords[idx];
-        e.move_to_coordinates(col, row);
+  };
+
+  // src/clusters/cluster2.ts
+  var Cluster2 = class extends ClusterBase {
+    rotation = "1";
+    constructor() {
+      super();
+      const init_col = Math.floor(Math.random() * (WIDTH - 2));
+      const r1 = new Rectangle({ col: init_col });
+      const r2 = new Rectangle({ col: init_col + 1 });
+      const r3 = new Rectangle({ col: init_col + 1 });
+      const r4 = new Rectangle({ col: init_col + 2 });
+      r1.descent();
+      r3.descent();
+      r4.descent();
+      this.elements = [r1, r2, r3, r4];
+      this.check_collisions();
+    }
+    rotate() {
+      switch (this.rotation) {
+        case "1": {
+          console.log("rotate 1");
+          const { coordinates: new_coords } = this.project_rotation();
+          if (!new_coords) return;
+          this.rotation = "2";
+          return this._move_coordinates(new_coords);
+        }
+        case "2": {
+          const { coordinates: new_coords } = this.project_rotation();
+          if (!new_coords) return;
+          this.rotation = "3";
+          return this._move_coordinates(new_coords);
+        }
+        case "3": {
+          const { coordinates: new_coords } = this.project_rotation();
+          if (!new_coords) return;
+          this.rotation = "4";
+          return this._move_coordinates(new_coords);
+        }
+        case "4": {
+          const { coordinates: new_coords } = this.project_rotation();
+          if (!new_coords) return;
+          this.rotation = "1";
+          return this._move_coordinates(new_coords);
+        }
       }
     }
-    shift_left() {
-      let canShift = true;
-      for (const e of this.elements) {
-        const [col, row] = e.coordinates();
-        if (col === 0 || ctx.board.is_taken(col - 1, row)) canShift = false;
+    project_rotation() {
+      const b = this.elements.map((e) => e.coordinates());
+      const cs_after = [];
+      switch (this.rotation) {
+        case "1": {
+          cs_after.push([b[0][0] + 1, b[0][1] + 1]);
+          cs_after.push([b[1][0], b[1][1]]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0], b[3][1]]);
+          break;
+        }
+        case "2": {
+          cs_after.push([b[0][0], b[0][1]]);
+          cs_after.push([b[1][0] - 1, b[1][1] + 1]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0], b[3][1]]);
+          break;
+        }
+        case "3": {
+          cs_after.push([b[0][0], b[0][1]]);
+          cs_after.push([b[1][0], b[1][1]]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0] - 1, b[3][1] - 1]);
+          break;
+        }
+        case "4": {
+          cs_after.push([b[0][0] - 1, b[0][1] - 1]);
+          cs_after.push([b[1][0] + 1, b[1][1] - 1]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0] + 1, b[3][1] + 1]);
+          break;
+        }
       }
-      if (!canShift) return;
-      for (const e of this.elements) {
-        e.shift_left();
-      }
-    }
-    shift_right() {
-      let canShift = true;
-      for (const e of this.elements) {
-        const [col, row] = e.coordinates();
-        if (col === WIDTH - 1 || ctx.board.is_taken(col + 1, row))
-          canShift = false;
-      }
-      if (!canShift) return;
-      for (const e of this.elements) {
-        e.shift_right();
-      }
-    }
-    descent() {
-      for (const e of this.elements) {
-        e.descent();
-      }
-      if (ctx.key_pressed) this.check_collisions();
-      else setTimeout(() => this.check_collisions(), 350);
-    }
-    bottom_row() {
-      return Math.max(...this.elements.map((el) => el.coordinates()[1]));
-    }
-    check_collisions() {
-      if (ctx.game_moving_element === null) return;
-      const row = this.bottom_row();
-      const coordinates = this.elements.map((e) => e.coordinates());
-      const exposed_coordinates = [];
-      for (const c of coordinates) {
-        const element_below = coordinates.find(
-          (e) => e[0] === c[0] && e[1] === c[1] + 1
-        );
-        if (!element_below) exposed_coordinates.push(c);
-      }
-      const collision = row == HEIGHT - 1 || exposed_coordinates.map((c) => ctx.board.is_taken(c[0], c[1] + 1)).some((found_colision) => found_colision);
-      if (collision) {
-        const rows = /* @__PURE__ */ new Set();
-        this.elements.forEach((e) => {
-          const [col, row2] = e.coordinates();
-          rows.add(row2);
-          ctx.board.take(col, row2);
-        });
-        ctx.game.remove_rows(
-          Array.from(rows).filter(
-            (r) => ctx.board.check_level_completion(r)
-          )
-        );
-        ctx.game_moving_element = null;
-        ctx.board.log_baord();
-        return;
-      }
+      return this.morph_projected_coordiantes(cs_after);
     }
   };
 
   // src/game.ts
-  var elements = [Cluster1];
+  var elements = [Cluster1, Cluster2];
   var Game = class {
     spawn_element() {
       const cluster = this.roll_element();

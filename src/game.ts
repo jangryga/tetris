@@ -1,8 +1,9 @@
-import { Cluster1 } from "./clusters";
+import { Cluster1 } from "./clusters/cluster1";
+import { Cluster2 } from "./clusters/cluster2";
 import { ctx, Shape } from "./game_context";
 import { Rectangle } from "./rectangle";
 
-const elements = [Cluster1];
+const elements = [Cluster1, Cluster2];
 
 export class Game {
   spawn_element() {

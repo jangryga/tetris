@@ -1,9 +1,10 @@
 import { Game } from "./game";
 import { Board } from "./game_board";
-import { Cluster1 } from "./clusters";
+import { Cluster1 } from "./clusters/cluster1";
 import { Rectangle } from "./rectangle";
+import { Cluster2 } from "./clusters/cluster2";
 
-export type Shape = Cluster1;
+export type Shape = Cluster1 | Cluster2;
 
 export interface GameContext {
   root: HTMLElement;
