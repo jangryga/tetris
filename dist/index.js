@@ -43,7 +43,6 @@
       const { coordinates: new_coords } = this.project_rotation();
       if (!new_coords) return;
       this.current_rotation = this.current_rotation === this.rotation_count - 1 ? 0 : this.current_rotation + 1;
-      console.log("new_coords: ", new_coords);
       return this._move_coordinates(new_coords);
     }
     render() {
@@ -418,8 +417,26 @@
     }
   };
 
+  // src/clusters/cluster4.ts
+  var Cluster4 = class extends ClusterBase {
+    constructor() {
+      super();
+      this.rotation_count = 1;
+      const init_col = Math.floor(Math.random() * (WIDTH - 3));
+      const color = random_color();
+      const r1 = new Rectangle({ col: init_col, color });
+      const r2 = new Rectangle({ col: init_col + 1, color });
+      const r3 = new Rectangle({ col: init_col, color });
+      const r4 = new Rectangle({ col: init_col + 1, color });
+      this.elements = [r1, r2, r3, r4];
+      r3.descent();
+      r4.descent();
+      this.check_collisions();
+    }
+  };
+
   // src/game.ts
-  var elements = [Cluster1, Cluster2, Cluster3];
+  var elements = [Cluster1, Cluster2, Cluster3, Cluster4];
   var Game = class {
     spawn_element() {
       const cluster = this.roll_element();

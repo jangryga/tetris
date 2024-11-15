@@ -32,7 +32,6 @@ export class ClusterBase {
       this.current_rotation === this.rotation_count - 1
         ? 0
         : this.current_rotation + 1;
-    console.log("new_coords: ", new_coords);
     return this._move_coordinates(new_coords);
   }
 
