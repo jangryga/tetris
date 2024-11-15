@@ -435,8 +435,62 @@
     }
   };
 
+  // src/clusters/cluster5.ts
+  var Cluster5 = class extends ClusterBase {
+    constructor() {
+      super();
+      this.rotation_count = 4;
+      const init_col = Math.floor(Math.random() * (WIDTH - 3));
+      const color = random_color();
+      const r1 = new Rectangle({ col: init_col, color });
+      const r2 = new Rectangle({ col: init_col, color });
+      const r3 = new Rectangle({ col: init_col + 1, color });
+      const r4 = new Rectangle({ col: init_col + 2, color });
+      this.elements = [r1, r2, r3, r4];
+      r2.descent();
+      r3.descent();
+      r4.descent();
+      this.check_collisions();
+    }
+    project_rotation() {
+      const b = this.elements.map((e) => e.coordinates());
+      const cs_after = [];
+      switch (this.current_rotation) {
+        case 0: {
+          cs_after.push([b[0][0] + 2, b[0][1]]);
+          cs_after.push([b[1][0] + 1, b[1][1] - 1]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0] - 1, b[3][1] + 1]);
+          break;
+        }
+        case 1: {
+          cs_after.push([b[0][0], b[0][1] + 2]);
+          cs_after.push([b[1][0] + 1, b[1][1] + 1]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0] - 1, b[3][1] - 1]);
+          break;
+        }
+        case 2: {
+          cs_after.push([b[0][0] - 2, b[0][1]]);
+          cs_after.push([b[1][0] - 1, b[1][1] + 1]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0] + 1, b[3][1] - 1]);
+          break;
+        }
+        case 3: {
+          cs_after.push([b[0][0], b[0][1] - 2]);
+          cs_after.push([b[1][0] - 1, b[1][1] - 1]);
+          cs_after.push([b[2][0], b[2][1]]);
+          cs_after.push([b[3][0] + 1, b[3][1] + 1]);
+          break;
+        }
+      }
+      return this.morph_projected_coordiantes(cs_after);
+    }
+  };
+
   // src/game.ts
-  var elements = [Cluster1, Cluster2, Cluster3, Cluster4];
+  var elements = [Cluster1, Cluster2, Cluster3, Cluster4, Cluster5];
   var Game = class {
     spawn_element() {
       const cluster = this.roll_element();

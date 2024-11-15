@@ -7,3 +7,7 @@ TODO:
 bugs:
 
 - [ ] randomly rolling new element
+
+known bugs:
+
+- cluster 5 should be able to go up on rotation-collision detected

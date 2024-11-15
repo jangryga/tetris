@@ -2,10 +2,11 @@ import { Cluster1 } from "./clusters/cluster1";
 import { Cluster2 } from "./clusters/cluster2";
 import { Cluster3 } from "./clusters/cluster3";
 import { Cluster4 } from "./clusters/cluster4";
+import { Cluster5 } from "./clusters/cluster5";
 import { ctx, Shape } from "./game_context";
 import { Rectangle } from "./rectangle";
 
-const elements = [Cluster1, Cluster2, Cluster3, Cluster4];
+const elements = [Cluster1, Cluster2, Cluster3, Cluster4, Cluster5];
 
 export class Game {
   spawn_element() {
