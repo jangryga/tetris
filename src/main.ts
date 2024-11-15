@@ -24,6 +24,7 @@ export function main() {
     const now = Date.now();
     const shouldTick = now - ctx.last_tick_at > ctx.tick_duration;
 
+    // console.log("shouldTick", shouldTick);
     if (!shouldTick) return;
     ctx.last_tick_at = now;
     ctx.game.update();

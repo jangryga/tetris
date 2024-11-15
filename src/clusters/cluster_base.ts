@@ -77,7 +77,7 @@ export class ClusterBase {
     }
 
     if (ctx.key_pressed) this.check_collisions();
-    else setTimeout(() => this.check_collisions(), 350);
+    else setTimeout(() => this.check_collisions(), 100);
   }
 
   check_collisions() {
