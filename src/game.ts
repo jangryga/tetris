@@ -3,10 +3,11 @@ import { Cluster2 } from "./clusters/cluster2";
 import { Cluster3 } from "./clusters/cluster3";
 import { Cluster4 } from "./clusters/cluster4";
 import { Cluster5 } from "./clusters/cluster5";
+import { Cluster6 } from "./clusters/cluster6";
 import { ctx, Shape } from "./game_context";
 import { Rectangle } from "./rectangle";
 
-const elements = [Cluster1, Cluster2, Cluster3, Cluster4, Cluster5];
+const elements = [Cluster1, Cluster2, Cluster3, Cluster4, Cluster5, Cluster6];
 
 export class Game {
   spawn_element() {
@@ -15,6 +16,7 @@ export class Game {
       ctx.game_elements.push(rect);
     }
     ctx.game_moving_element = cluster;
+    cluster.check_collisions();
     cluster.render();
   }
 
