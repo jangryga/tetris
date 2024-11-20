@@ -6,6 +6,7 @@
   var CANVAS_WIDTH = CELL_SIZE * WIDTH;
   var CANVAS_HEIGHT = CELL_SIZE * HEIGHT;
   var COLORS = ["red", "blue", "green", "yellow", "orange"];
+  var QUEUE_SIZE = 5;
 
   // src/game_context.ts
   var ctx = {
@@ -16,7 +17,8 @@
     tick_duration: 500,
     key_pressed: false,
     last_tick_at: Date.now(),
-    board: null
+    board: null,
+    queue: []
   };
 
   // src/utils/invariant.ts
@@ -47,6 +49,9 @@
     }
     render() {
       this.elements.forEach((el) => el.render());
+    }
+    render_to_container(container) {
+      this.elements.forEach((el) => el.render_to_container(container));
     }
     shift_left() {
       let canShift = true;
@@ -219,6 +224,22 @@
     });
     return s.to_styles_string();
   };
+  var init_queue_styles = () => {
+    const s = new Styles({
+      backgroundColor: "black;",
+      height: `${CANVAS_HEIGHT}px;`,
+      width: "100px;",
+      left: `${CANVAS_WIDTH}px;`,
+      top: null,
+      margin: null,
+      position: "relative;",
+      "border-left": "yellow 1px solid;",
+      display: "flex",
+      "flex-direction": "column",
+      "justify-content": "space-between"
+    });
+    return s.to_styles_string();
+  };
 
   // src/rectangle.ts
   var Rectangle = class {
@@ -239,6 +260,10 @@
     }
     render() {
       ctx.root.appendChild(this.html);
+    }
+    render_to_container(container) {
+      this._update();
+      container.appendChild(this.html);
     }
     move_to_coordinates(col, row) {
       this.styles.set_custom_board_position(col, row);
@@ -271,10 +296,10 @@
 
   // src/clusters/cluster1.ts
   var Cluster1 = class extends ClusterBase {
-    constructor() {
+    constructor(initial_column) {
       super();
       this.rotation_count = 2;
-      const init_col = Math.floor(Math.random() * (WIDTH - 2));
+      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 2));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -310,10 +335,10 @@
 
   // src/clusters/cluster2.ts
   var Cluster2 = class extends ClusterBase {
-    constructor() {
+    constructor(initial_column) {
       super();
       this.rotation_count = 4;
-      const init_col = Math.floor(Math.random() * (WIDTH - 2));
+      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 2));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -364,10 +389,10 @@
 
   // src/clusters/cluster3.ts
   var Cluster3 = class extends ClusterBase {
-    constructor() {
+    constructor(initial_column) {
       super();
       this.rotation_count = 4;
-      const init_col = Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -419,10 +444,10 @@
 
   // src/clusters/cluster4.ts
   var Cluster4 = class extends ClusterBase {
-    constructor() {
+    constructor(initial_column) {
       super();
       this.rotation_count = 1;
-      const init_col = Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -437,10 +462,10 @@
 
   // src/clusters/cluster5.ts
   var Cluster5 = class extends ClusterBase {
-    constructor() {
+    constructor(initial_column) {
       super();
       this.rotation_count = 4;
-      const init_col = Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col, color });
@@ -491,10 +516,10 @@
 
   // src/clusters/cluster6.ts
   var Cluster6 = class extends ClusterBase {
-    constructor() {
+    constructor(initial_column) {
       super();
       this.rotation_count = 4;
-      const init_col = Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col + 2, color });
       const r2 = new Rectangle({ col: init_col, color });
@@ -547,7 +572,7 @@
   var elements = [Cluster1, Cluster2, Cluster3, Cluster4, Cluster5, Cluster6];
   var Game = class {
     spawn_element() {
-      const cluster = this.roll_element();
+      const cluster = this.queue_get_cluster();
       for (const rect of cluster.elements) {
         ctx.game_elements.push(rect);
       }
@@ -555,9 +580,40 @@
       cluster.check_collisions();
       cluster.render();
     }
-    roll_element() {
+    queue_get_cluster() {
+      if (ctx.queue.length !== QUEUE_SIZE) {
+        for (let i = 0; i < QUEUE_SIZE; i++) {
+          ctx.queue.push(this.roll_element(0));
+        }
+        this.queue_render_elements();
+        return this.roll_element();
+      }
+      const cluster = ctx.queue[0];
+      ctx.queue = ctx.queue.slice(1);
+      ctx.queue.push(this.roll_element(0));
+      this.queue_render_elements();
+      return cluster;
+    }
+    queue_render_elements() {
+      for (const child of Array.from(ctx.queue_element?.children)) {
+        ctx.queue_element.removeChild(child);
+      }
+      for (const cluster of ctx.queue) {
+        const container = document.createElement("div");
+        const styles = new Styles({
+          position: "relative;",
+          width: "100%;",
+          height: "40px;",
+          border: "1px solid red;"
+        });
+        container.setAttribute("style", styles.to_styles_string());
+        cluster.render_to_container(container);
+        ctx.queue_element.appendChild(container);
+      }
+    }
+    roll_element(col) {
       const idx = Math.floor(Math.random() * elements.length);
-      return new elements[idx]();
+      return new elements[idx](col);
     }
     remove_rows(rows) {
       if (rows.length === 0) return;
@@ -657,16 +713,20 @@
   function main() {
     let root = document.getElementById("root");
     invariant(root !== void 0, "Root element not found");
+    const queue_panel = document.createElement("div");
+    queue_panel.setAttribute("style", init_queue_styles());
+    root.appendChild(queue_panel);
     root.setAttribute("style", init_game_styles());
     ctx.root = root;
     ctx.game = new Game();
     ctx.board = new Board();
+    ctx.queue_element = queue_panel;
     registerGameEffects(ctx);
     function game_loop() {
       requestAnimationFrame(game_loop);
       const now = Date.now();
-      const shouldTick = now - ctx.last_tick_at > ctx.tick_duration;
-      if (!shouldTick) return;
+      const should_tick = now - ctx.last_tick_at > ctx.tick_duration;
+      if (!should_tick) return;
       ctx.last_tick_at = now;
       ctx.game.update();
     }

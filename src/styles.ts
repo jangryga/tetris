@@ -26,6 +26,7 @@ export class Styles {
       left?: string | null;
       top?: string | null;
       backgroundColor?: string;
+      [key: string]: any;
     }
   ) {}
 
@@ -76,6 +77,23 @@ export const init_game_styles = () => {
     top: null,
     margin: "auto;",
     position: "relative;",
+  });
+  return s.to_styles_string();
+};
+
+export const init_queue_styles = () => {
+  const s = new Styles({
+    backgroundColor: "black;",
+    height: `${CANVAS_HEIGHT}px;`,
+    width: "100px;",
+    left: `${CANVAS_WIDTH}px;`,
+    top: null,
+    margin: null,
+    position: "relative;",
+    "border-left": "yellow 1px solid;",
+    display: "flex",
+    "flex-direction": "column",
+    "justify-content": "space-between",
   });
   return s.to_styles_string();
 };

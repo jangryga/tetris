@@ -1,8 +1,10 @@
 TODO:
 
-- [ ] more clusters [2/5]
-- [ ] score on level completion
-- [ ] game finished: reached top, stop game, show score, restart game
+- [ ] element queue
+- [ ] side menu: upcoming, score, level
+- [ ] stop game animation
+- [ ] stop game -> animate last piece -> show end game menu
+- [ ] end game menu
 
 bugs:
 

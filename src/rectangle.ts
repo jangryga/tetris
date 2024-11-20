@@ -34,12 +34,17 @@ export class Rectangle implements BaseMethods {
     ctx.root.appendChild(this.html);
   }
 
+  render_to_container(container: HTMLElement) {
+    this._update();
+    container.appendChild(this.html);
+  }
+
   move_to_coordinates(col: number, row: number) {
     this.styles.set_custom_board_position(col, row);
     this._update();
   }
 
-  _update() {
+  private _update() {
     this.html.setAttribute("style", this.styles.to_styles_string());
   }
 

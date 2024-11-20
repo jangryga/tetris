@@ -39,6 +39,10 @@ export class ClusterBase {
     this.elements.forEach((el) => el.render());
   }
 
+  render_to_container(container: HTMLElement) {
+    this.elements.forEach((el) => el.render_to_container(container));
+  }
+
   shift_left() {
     let canShift = true;
 

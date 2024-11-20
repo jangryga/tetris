@@ -15,6 +15,8 @@ export interface GameContext {
   key_pressed: boolean;
   last_tick_at: number;
   board: Board;
+  queue: Shape[];
+  queue_element: HTMLElement;
 }
 
 export const ctx = {
@@ -26,4 +28,5 @@ export const ctx = {
   key_pressed: false,
   last_tick_at: Date.now(),
   board: null,
+  queue: [],
 } as unknown as GameContext;
