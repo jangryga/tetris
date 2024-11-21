@@ -136,9 +136,17 @@ export class ClusterBase {
 
   private will_collide(coords: number[][]): boolean {
     for (const cs of coords) {
-      if (cs[0] < 0 || cs[1] < 0 || ctx.board.is_taken(cs[0], cs[1]))
+      if (
+        cs[0] < 0 ||
+        cs[1] < 0 ||
+        cs[0] >= WIDTH ||
+        ctx.board.is_taken(cs[0], cs[1])
+      ) {
+        console.log(`ERROR projected collision ${cs}`);
         return true;
+      }
     }
+
     return false;
   }
 
@@ -163,7 +171,7 @@ export class ClusterBase {
       return { coordinates: coords };
     }
 
-    const cs_after_left_shifted = this.project_shift(coords, "left");
+    let cs_after_left_shifted = this.project_shift(coords, "left");
     if (!this.will_collide(cs_after_left_shifted)) {
       return { coordinates: cs_after_left_shifted };
     }
@@ -179,6 +187,17 @@ export class ClusterBase {
       !this.will_collide(cs_after_down_shifted)
     ) {
       return { coordinates: cs_after_down_shifted };
+    }
+
+    const cs_after_left_left_shifted = this.project_shift(
+      cs_after_left_shifted,
+      "left"
+    );
+    if (
+      coords.some((c) => c[0] === WIDTH) &&
+      !this.will_collide(cs_after_left_left_shifted)
+    ) {
+      return { coordinates: cs_after_left_left_shifted };
     }
 
     return { coordinates: null };

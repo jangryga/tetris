@@ -125,8 +125,10 @@
     }
     will_collide(coords) {
       for (const cs of coords) {
-        if (cs[0] < 0 || cs[1] < 0 || ctx.board.is_taken(cs[0], cs[1]))
+        if (cs[0] < 0 || cs[1] < 0 || cs[0] >= WIDTH || ctx.board.is_taken(cs[0], cs[1])) {
+          console.log(`ERROR projected collision ${cs}`);
           return true;
+        }
       }
       return false;
     }
@@ -147,7 +149,7 @@
       if (!this.will_collide(coords)) {
         return { coordinates: coords };
       }
-      const cs_after_left_shifted = this.project_shift(coords, "left");
+      let cs_after_left_shifted = this.project_shift(coords, "left");
       if (!this.will_collide(cs_after_left_shifted)) {
         return { coordinates: cs_after_left_shifted };
       }
@@ -158,6 +160,13 @@
       const cs_after_down_shifted = this.project_shift(coords, "down");
       if (coords.some((c) => c[1] < 0) && !this.will_collide(cs_after_down_shifted)) {
         return { coordinates: cs_after_down_shifted };
+      }
+      const cs_after_left_left_shifted = this.project_shift(
+        cs_after_left_shifted,
+        "left"
+      );
+      if (coords.some((c) => c[0] === WIDTH) && !this.will_collide(cs_after_left_left_shifted)) {
+        return { coordinates: cs_after_left_left_shifted };
       }
       return { coordinates: null };
     }
