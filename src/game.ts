@@ -19,20 +19,21 @@ export class Game {
     }
     ctx.game_moving_element = cluster;
     cluster.check_collisions();
+    cluster.force_update();
     cluster.render();
   }
 
   queue_get_cluster() {
     if (ctx.queue.length !== QUEUE_SIZE) {
       for (let i = 0; i < QUEUE_SIZE; i++) {
-        ctx.queue.push(this.roll_element(0));
+        ctx.queue.push(this.roll_element());
       }
       this.queue_render_elements();
       return this.roll_element();
     }
     const cluster = ctx.queue[0];
     ctx.queue = ctx.queue.slice(1);
-    ctx.queue.push(this.roll_element(0));
+    ctx.queue.push(this.roll_element());
     this.queue_render_elements();
     return cluster;
   }
@@ -46,19 +47,19 @@ export class Game {
       const container = document.createElement("div");
       const styles = new Styles({
         position: "relative;",
-        width: "100%;",
-        height: "40px;",
-        border: "1px solid red;",
+        width: "85%;",
+        height: "45px;",
+        "margin-left": "auto;",
       });
       container.setAttribute("style", styles.to_styles_string());
-      cluster.render_to_container(container);
+      cluster.render_to_side_container(container);
       ctx.queue_element.appendChild(container);
     }
   }
 
-  roll_element(col?: number): Shape {
+  roll_element(): Shape {
     const idx = Math.floor(Math.random() * elements.length);
-    return new elements[idx](col);
+    return new elements[idx]();
   }
 
   remove_rows(rows: number[]) {

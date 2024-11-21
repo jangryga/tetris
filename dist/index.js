@@ -35,6 +35,7 @@
     elements;
     rotation_count;
     current_rotation = 0;
+    init_col;
     constructor() {
       this.rotation_count = 4;
     }
@@ -50,8 +51,15 @@
     render() {
       this.elements.forEach((el) => el.render());
     }
-    render_to_container(container) {
-      this.elements.forEach((el) => el.render_to_container(container));
+    render_to_side_container(container) {
+      this.elements.forEach(
+        (el) => el.render_to_side_container(container, this.init_col)
+      );
+    }
+    force_update() {
+      for (const e of this.elements) {
+        e._update();
+      }
     }
     shift_left() {
       let canShift = true;
@@ -202,9 +210,9 @@
     get_offset_left() {
       return Number.parseInt(this.params.left.slice(0, -3));
     }
-    to_styles_string() {
+    to_styles_string(custom_styles) {
       const styles = [];
-      for (let [key, val] of Object.entries(this.params)) {
+      for (let [key, val] of Object.entries(custom_styles ?? this.params)) {
         if (!val) continue;
         if (key === "backgroundColor") key = "background-color";
         styles.push(`${key}: ${val}`);
@@ -234,9 +242,10 @@
       margin: null,
       position: "relative;",
       "border-left": "yellow 1px solid;",
-      display: "flex",
-      "flex-direction": "column",
-      "justify-content": "space-between"
+      display: "flex;",
+      "flex-direction": "column;",
+      "justify-content": "space-between;",
+      padding: "0px;"
     });
     return s.to_styles_string();
   };
@@ -261,16 +270,19 @@
     render() {
       ctx.root.appendChild(this.html);
     }
-    render_to_container(container) {
-      this._update();
+    render_to_side_container(container, col_shift) {
+      let styles = JSON.parse(JSON.stringify(this.styles));
+      let left = this.styles.get_offset_left() - col_shift * CELL_SIZE;
+      styles.params.left = `${left}px;`;
+      this._update(this.styles.to_styles_string(styles.params));
       container.appendChild(this.html);
     }
     move_to_coordinates(col, row) {
       this.styles.set_custom_board_position(col, row);
       this._update();
     }
-    _update() {
-      this.html.setAttribute("style", this.styles.to_styles_string());
+    _update(styles) {
+      this.html.setAttribute("style", styles ?? this.styles.to_styles_string());
     }
     shift_left() {
       if (this.styles.get_offset_left() <= 0) return;
@@ -296,10 +308,10 @@
 
   // src/clusters/cluster1.ts
   var Cluster1 = class extends ClusterBase {
-    constructor(initial_column) {
+    constructor() {
       super();
       this.rotation_count = 2;
-      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 2));
+      const init_col = Math.floor(Math.random() * (WIDTH - 2));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -308,6 +320,7 @@
       r3.descent();
       r4.descent();
       this.elements = [r1, r2, r3, r4];
+      this.init_col = init_col;
       this.check_collisions();
     }
     project_rotation() {
@@ -335,10 +348,10 @@
 
   // src/clusters/cluster2.ts
   var Cluster2 = class extends ClusterBase {
-    constructor(initial_column) {
+    constructor() {
       super();
       this.rotation_count = 4;
-      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 2));
+      const init_col = Math.floor(Math.random() * (WIDTH - 2));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -348,6 +361,7 @@
       r3.descent();
       r4.descent();
       this.elements = [r1, r2, r3, r4];
+      this.init_col = init_col;
       this.check_collisions();
     }
     project_rotation() {
@@ -389,10 +403,10 @@
 
   // src/clusters/cluster3.ts
   var Cluster3 = class extends ClusterBase {
-    constructor(initial_column) {
+    constructor() {
       super();
       this.rotation_count = 4;
-      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -403,6 +417,7 @@
       r2.descent();
       r3.descent();
       r4.descent();
+      this.init_col = init_col;
       this.check_collisions();
     }
     project_rotation() {
@@ -444,10 +459,10 @@
 
   // src/clusters/cluster4.ts
   var Cluster4 = class extends ClusterBase {
-    constructor(initial_column) {
+    constructor() {
       super();
       this.rotation_count = 1;
-      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col + 1, color });
@@ -456,16 +471,17 @@
       this.elements = [r1, r2, r3, r4];
       r3.descent();
       r4.descent();
+      this.init_col = init_col;
       this.check_collisions();
     }
   };
 
   // src/clusters/cluster5.ts
   var Cluster5 = class extends ClusterBase {
-    constructor(initial_column) {
+    constructor() {
       super();
       this.rotation_count = 4;
-      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col, color });
       const r2 = new Rectangle({ col: init_col, color });
@@ -475,6 +491,7 @@
       r2.descent();
       r3.descent();
       r4.descent();
+      this.init_col = init_col;
       this.check_collisions();
     }
     project_rotation() {
@@ -516,10 +533,10 @@
 
   // src/clusters/cluster6.ts
   var Cluster6 = class extends ClusterBase {
-    constructor(initial_column) {
+    constructor() {
       super();
       this.rotation_count = 4;
-      const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 3));
+      const init_col = Math.floor(Math.random() * (WIDTH - 3));
       const color = random_color();
       const r1 = new Rectangle({ col: init_col + 2, color });
       const r2 = new Rectangle({ col: init_col, color });
@@ -529,6 +546,7 @@
       r2.descent();
       r3.descent();
       r4.descent();
+      this.init_col = init_col;
       this.check_collisions();
     }
     project_rotation() {
@@ -578,19 +596,20 @@
       }
       ctx.game_moving_element = cluster;
       cluster.check_collisions();
+      cluster.force_update();
       cluster.render();
     }
     queue_get_cluster() {
       if (ctx.queue.length !== QUEUE_SIZE) {
         for (let i = 0; i < QUEUE_SIZE; i++) {
-          ctx.queue.push(this.roll_element(0));
+          ctx.queue.push(this.roll_element());
         }
         this.queue_render_elements();
         return this.roll_element();
       }
       const cluster = ctx.queue[0];
       ctx.queue = ctx.queue.slice(1);
-      ctx.queue.push(this.roll_element(0));
+      ctx.queue.push(this.roll_element());
       this.queue_render_elements();
       return cluster;
     }
@@ -602,18 +621,18 @@
         const container = document.createElement("div");
         const styles = new Styles({
           position: "relative;",
-          width: "100%;",
-          height: "40px;",
-          border: "1px solid red;"
+          width: "85%;",
+          height: "45px;",
+          "margin-left": "auto;"
         });
         container.setAttribute("style", styles.to_styles_string());
-        cluster.render_to_container(container);
+        cluster.render_to_side_container(container);
         ctx.queue_element.appendChild(container);
       }
     }
-    roll_element(col) {
+    roll_element() {
       const idx = Math.floor(Math.random() * elements.length);
-      return new elements[idx](col);
+      return new elements[idx]();
     }
     remove_rows(rows) {
       if (rows.length === 0) return;

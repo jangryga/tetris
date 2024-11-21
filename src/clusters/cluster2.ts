@@ -4,10 +4,10 @@ import { Rectangle } from "../rectangle";
 import { random_color } from "../utils/invariant";
 
 export class Cluster2 extends ClusterBase implements ClusterMethods {
-  constructor(initial_column?: number) {
+  constructor() {
     super();
     this.rotation_count = 4;
-    const init_col = initial_column ?? Math.floor(Math.random() * (WIDTH - 2));
+    const init_col = Math.floor(Math.random() * (WIDTH - 2));
     const color = random_color();
     const r1 = new Rectangle({ col: init_col, color });
     const r2 = new Rectangle({ col: init_col + 1, color });
@@ -17,6 +17,7 @@ export class Cluster2 extends ClusterBase implements ClusterMethods {
     r3.descent();
     r4.descent();
     this.elements = [r1, r2, r3, r4];
+    this.init_col = init_col;
 
     this.check_collisions();
   }

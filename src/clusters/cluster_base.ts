@@ -16,6 +16,7 @@ export class ClusterBase {
   elements: Rectangle[];
   rotation_count: number;
   current_rotation = 0;
+  init_col: number;
 
   constructor() {
     this.rotation_count = 4;
@@ -39,8 +40,16 @@ export class ClusterBase {
     this.elements.forEach((el) => el.render());
   }
 
-  render_to_container(container: HTMLElement) {
-    this.elements.forEach((el) => el.render_to_container(container));
+  render_to_side_container(container: HTMLElement) {
+    this.elements.forEach((el) =>
+      el.render_to_side_container(container, this.init_col)
+    );
+  }
+
+  force_update() {
+    for (const e of this.elements) {
+      e._update();
+    }
   }
 
   shift_left() {

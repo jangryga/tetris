@@ -34,8 +34,11 @@ export class Rectangle implements BaseMethods {
     ctx.root.appendChild(this.html);
   }
 
-  render_to_container(container: HTMLElement) {
-    this._update();
+  render_to_side_container(container: HTMLElement, col_shift: number) {
+    let styles = JSON.parse(JSON.stringify(this.styles));
+    let left = this.styles.get_offset_left() - col_shift * CELL_SIZE;
+    styles.params.left = `${left}px;`;
+    this._update(this.styles.to_styles_string(styles.params));
     container.appendChild(this.html);
   }
 
@@ -44,8 +47,8 @@ export class Rectangle implements BaseMethods {
     this._update();
   }
 
-  private _update() {
-    this.html.setAttribute("style", this.styles.to_styles_string());
+  _update(styles?: string) {
+    this.html.setAttribute("style", styles ?? this.styles.to_styles_string());
   }
 
   shift_left() {

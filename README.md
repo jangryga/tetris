@@ -1,14 +1,15 @@
 TODO:
 
-- [ ] element queue
-- [ ] side menu: upcoming, score, level
+- [x] element queue
+- [x] side menu: upcoming elements
+- [ ] score, levels
 - [ ] stop game animation
 - [ ] stop game -> animate last piece -> show end game menu
 - [ ] end game menu
 
 bugs:
 
-- [ ] randomly rolling new element
+- [ ]
 
 known bugs:
 

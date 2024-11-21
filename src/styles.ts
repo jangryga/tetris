@@ -57,9 +57,9 @@ export class Styles {
     return Number.parseInt(this.params.left!.slice(0, -3));
   }
 
-  to_styles_string() {
+  to_styles_string(custom_styles?: object) {
     const styles: string[] = [];
-    for (let [key, val] of Object.entries(this.params)) {
+    for (let [key, val] of Object.entries(custom_styles ?? this.params)) {
       if (!val) continue;
       if (key === "backgroundColor") key = "background-color";
       styles.push(`${key}: ${val}`);
@@ -91,9 +91,10 @@ export const init_queue_styles = () => {
     margin: null,
     position: "relative;",
     "border-left": "yellow 1px solid;",
-    display: "flex",
-    "flex-direction": "column",
-    "justify-content": "space-between",
+    display: "flex;",
+    "flex-direction": "column;",
+    "justify-content": "space-between;",
+    padding: "0px;",
   });
   return s.to_styles_string();
 };
