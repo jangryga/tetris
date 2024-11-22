@@ -26,6 +26,11 @@ export class Styles {
       left?: string | null;
       top?: string | null;
       backgroundColor?: string;
+      flexDirection?: string;
+      justifyContent?: string;
+      borderLeft?: string;
+      borderRight?: string;
+      alignItems?: string;
       [key: string]: any;
     }
   ) {}
@@ -61,7 +66,12 @@ export class Styles {
     const styles: string[] = [];
     for (let [key, val] of Object.entries(custom_styles ?? this.params)) {
       if (!val) continue;
-      if (key === "backgroundColor") key = "background-color";
+      else if (key === "backgroundColor") key = "background-color";
+      else if (key === "flexDirection") key = "flex-direction";
+      else if (key === "justifyContent") key = "justify-content";
+      else if (key === "borderLeft") key = "border-left";
+      else if (key === "borderRight") key = "border-right";
+      else if (key === "alignItems") key = "align-items";
       styles.push(`${key}: ${val}`);
     }
     return styles.join(" ");
@@ -90,10 +100,10 @@ export const init_queue_styles = () => {
     top: null,
     margin: null,
     position: "relative;",
-    "border-left": "yellow 1px solid;",
+    borderLeft: "yellow 1px solid;",
     display: "flex;",
-    "flex-direction": "column;",
-    "justify-content": "space-between;",
+    flexDirection: "column;",
+    justifyContent: "space-between;",
     padding: "0px;",
   });
   return s.to_styles_string();

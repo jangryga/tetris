@@ -85,7 +85,10 @@ export class Game {
   }
 
   update() {
-    if (globalThis.running === false) return;
+    const now = Date.now();
+    const should_tick = now - ctx.last_tick_at > ctx.tick_duration;
+    if (!should_tick) return;
+    ctx.last_tick_at = now;
     if (!ctx.game_moving_element) this.spawn_element();
     else ctx.game_moving_element?.descent();
   }

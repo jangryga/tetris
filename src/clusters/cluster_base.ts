@@ -118,7 +118,7 @@ export class ClusterBase {
         rows.add(row);
         ctx.board.take(col, row);
       });
-      ctx.game.remove_rows(
+      ctx.game!.remove_rows(
         Array.from(rows).filter((r) =>
           ctx.board.check_level_completion(r as number)
         ) as number[]
