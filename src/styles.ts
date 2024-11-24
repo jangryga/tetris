@@ -31,6 +31,7 @@ export class Styles {
       borderLeft?: string;
       borderRight?: string;
       alignItems?: string;
+      fontSize?: string;
       [key: string]: any;
     }
   ) {}
@@ -72,6 +73,7 @@ export class Styles {
       else if (key === "borderLeft") key = "border-left";
       else if (key === "borderRight") key = "border-right";
       else if (key === "alignItems") key = "align-items";
+      else if (key === "fontSize") key = "font-size";
       styles.push(`${key}: ${val}`);
     }
     return styles.join(" ");

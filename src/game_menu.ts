@@ -24,13 +24,25 @@ export class GameMenu {
     });
     this.update();
 
-    const new_game = document.createElement("div");
-    const new_game_styles = new Styles({ color: "white" });
+    const new_game = document.createElement("button");
+    const new_game_styles = new Styles({
+      color: "black;",
+      backgroundColor: "inherit;",
+      fontSize: "16px;",
+      width: "100px;",
+      // border: "none;",
+      // outline: "none;",
+    });
     new_game.setAttribute("style", new_game_styles.to_styles_string());
     new_game.innerText = "New Game";
 
-    const resume = document.createElement("div");
-    const resume_styles = new Styles({ color: "white" });
+    const resume = document.createElement("button");
+    const resume_styles = new Styles({
+      color: "black;",
+      backgroundColor: "inherit;",
+      fontSize: "16px;",
+      width: "100px;",
+    });
     resume.setAttribute("style", resume_styles.to_styles_string());
     resume.innerText = "Resume";
 
