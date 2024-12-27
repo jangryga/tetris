@@ -2,7 +2,8 @@ import { Game } from "./game";
 import { Board } from "./game_board";
 import { ctx } from "./game_context";
 import { registerGameEffects } from "./game_effects";
-import { GameMenu } from "./game_menu";
+import { GameMenu } from "./game_menu/game_menu";
+import { menuManager } from "./game_menu/menu";
 import { init_game_styles, init_queue_styles } from "./styles";
 import { invariant } from "./utils/invariant";
 
@@ -20,7 +21,8 @@ export function main() {
   ctx.game = new Game();
   ctx.board = new Board();
   ctx.queue_element = queue_panel;
-  ctx.game_menu = new GameMenu();
+
+  customElements.define("game-menu", GameMenu);
 
   registerGameEffects(ctx);
 
@@ -32,7 +34,8 @@ export function main() {
         return ctx.game!.update();
       }
       case "not_started":
-        return ctx.game_menu!.show();
+        return menuManager.show();
+      // return console.log(createMenu());
     }
   }
 

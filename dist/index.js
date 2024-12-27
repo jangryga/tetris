@@ -8,146 +8,6 @@
   var COLORS = ["red", "blue", "green", "yellow", "orange"];
   var QUEUE_SIZE = 5;
 
-  // src/styles.ts
-  function create_default_styles(col, color) {
-    return new Styles({
-      backgroundColor: `${color};`,
-      height: `${CELL_SIZE}px;`,
-      width: `${CELL_SIZE}px;`,
-      left: `${typeof col === "number" ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
-      margin: null,
-      position: "absolute;",
-      top: "0px;"
-    });
-  }
-  var Styles = class {
-    constructor(params) {
-      this.params = params;
-    }
-    get_offset_top() {
-      return Number.parseInt(this.params.top.slice(0, -3));
-    }
-    set_offset_top(top) {
-      this.params.top = `${top}px;`;
-    }
-    set_custom_board_position(col, row) {
-      const left_shift = col * CELL_SIZE;
-      const top_shift = row * CELL_SIZE;
-      this.params.left = `${left_shift}px;`;
-      this.params.top = `${top_shift}px;`;
-    }
-    set_offset_left() {
-      this.params.left = `${this.get_offset_left() - CELL_SIZE}px;`;
-    }
-    set_offset_right() {
-      this.params.left = `${this.get_offset_left() + CELL_SIZE}px;`;
-    }
-    get_offset_left() {
-      return Number.parseInt(this.params.left.slice(0, -3));
-    }
-    to_styles_string(custom_styles) {
-      const styles = [];
-      for (let [key, val] of Object.entries(custom_styles ?? this.params)) {
-        if (!val) continue;
-        else if (key === "backgroundColor") key = "background-color";
-        else if (key === "flexDirection") key = "flex-direction";
-        else if (key === "justifyContent") key = "justify-content";
-        else if (key === "borderLeft") key = "border-left";
-        else if (key === "borderRight") key = "border-right";
-        else if (key === "alignItems") key = "align-items";
-        else if (key === "fontSize") key = "font-size";
-        styles.push(`${key}: ${val}`);
-      }
-      return styles.join(" ");
-    }
-  };
-  var init_game_styles = () => {
-    const s = new Styles({
-      backgroundColor: "black;",
-      height: `${CANVAS_HEIGHT}px;`,
-      width: `${CANVAS_WIDTH}px;`,
-      left: null,
-      top: null,
-      margin: "auto;",
-      position: "relative;"
-    });
-    return s.to_styles_string();
-  };
-  var init_queue_styles = () => {
-    const s = new Styles({
-      backgroundColor: "black;",
-      height: `${CANVAS_HEIGHT}px;`,
-      width: "100px;",
-      left: `${CANVAS_WIDTH}px;`,
-      top: null,
-      margin: null,
-      position: "relative;",
-      borderLeft: "yellow 1px solid;",
-      display: "flex;",
-      flexDirection: "column;",
-      justifyContent: "space-between;",
-      padding: "0px;"
-    });
-    return s.to_styles_string();
-  };
-
-  // src/game_menu.ts
-  var GameMenu = class {
-    state;
-    select;
-    styles;
-    root;
-    constructor() {
-      this.root = document.createElement("div");
-      this.styles = new Styles({
-        backgroundColor: "rgba(50, 50, 50, 0.5);",
-        width: `${CANVAS_WIDTH}px;`,
-        height: `${CANVAS_HEIGHT}px;`,
-        position: "absolute;",
-        left: "0;",
-        top: "0;",
-        display: "none;",
-        flexDirection: "column;",
-        justifyContent: "space-evenly;",
-        alignItems: "center;"
-      });
-      this.update();
-      const new_game = document.createElement("button");
-      const new_game_styles = new Styles({
-        color: "black;",
-        backgroundColor: "inherit;",
-        fontSize: "16px;",
-        width: "100px;"
-        // border: "none;",
-        // outline: "none;",
-      });
-      new_game.setAttribute("style", new_game_styles.to_styles_string());
-      new_game.innerText = "New Game";
-      const resume = document.createElement("button");
-      const resume_styles = new Styles({
-        color: "black;",
-        backgroundColor: "inherit;",
-        fontSize: "16px;",
-        width: "100px;"
-      });
-      resume.setAttribute("style", resume_styles.to_styles_string());
-      resume.innerText = "Resume";
-      this.root.appendChild(new_game);
-      this.root.appendChild(resume);
-      ctx.root.appendChild(this.root);
-    }
-    show() {
-      this.styles.params.display = "flex;";
-      this.update();
-    }
-    hide() {
-      this.styles.params.display = "hidden;";
-    }
-    update() {
-      this.root.setAttribute("style", this.styles.to_styles_string());
-    }
-  };
-
   // src/game_context.ts
   var ctx = {
     game: null,
@@ -159,8 +19,7 @@
     key_pressed: false,
     last_tick_at: Date.now(),
     board: null,
-    queue: [],
-    game_menu: GameMenu
+    queue: []
   };
 
   // src/utils/invariant.ts
@@ -322,6 +181,89 @@
         e.move_to_coordinates(col, row);
       }
     }
+  };
+
+  // src/styles.ts
+  function create_default_styles(col, color) {
+    return new Styles({
+      backgroundColor: `${color};`,
+      height: `${CELL_SIZE}px;`,
+      width: `${CELL_SIZE}px;`,
+      left: `${typeof col === "number" ? col * CELL_SIZE : Math.floor(Math.random() * WIDTH) * CELL_SIZE}px;`,
+      margin: null,
+      position: "absolute;",
+      top: "0px;"
+    });
+  }
+  var Styles = class {
+    constructor(params) {
+      this.params = params;
+    }
+    get_offset_top() {
+      return Number.parseInt(this.params.top.slice(0, -3));
+    }
+    set_offset_top(top) {
+      this.params.top = `${top}px;`;
+    }
+    set_custom_board_position(col, row) {
+      const left_shift = col * CELL_SIZE;
+      const top_shift = row * CELL_SIZE;
+      this.params.left = `${left_shift}px;`;
+      this.params.top = `${top_shift}px;`;
+    }
+    set_offset_left() {
+      this.params.left = `${this.get_offset_left() - CELL_SIZE}px;`;
+    }
+    set_offset_right() {
+      this.params.left = `${this.get_offset_left() + CELL_SIZE}px;`;
+    }
+    get_offset_left() {
+      return Number.parseInt(this.params.left.slice(0, -3));
+    }
+    to_styles_string(custom_styles) {
+      const styles = [];
+      for (let [key, val] of Object.entries(custom_styles ?? this.params)) {
+        if (!val) continue;
+        else if (key === "backgroundColor") key = "background-color";
+        else if (key === "flexDirection") key = "flex-direction";
+        else if (key === "justifyContent") key = "justify-content";
+        else if (key === "borderLeft") key = "border-left";
+        else if (key === "borderRight") key = "border-right";
+        else if (key === "alignItems") key = "align-items";
+        else if (key === "fontSize") key = "font-size";
+        styles.push(`${key}: ${val}`);
+      }
+      return styles.join(" ");
+    }
+  };
+  var init_game_styles = () => {
+    const s = new Styles({
+      backgroundColor: "black;",
+      height: `${CANVAS_HEIGHT}px;`,
+      width: `${CANVAS_WIDTH}px;`,
+      left: null,
+      top: null,
+      margin: "auto;",
+      position: "relative;"
+    });
+    return s.to_styles_string();
+  };
+  var init_queue_styles = () => {
+    const s = new Styles({
+      backgroundColor: "black;",
+      height: `${CANVAS_HEIGHT}px;`,
+      width: "100px;",
+      left: `${CANVAS_WIDTH}px;`,
+      top: null,
+      margin: null,
+      position: "relative;",
+      borderLeft: "yellow 1px solid;",
+      display: "flex;",
+      flexDirection: "column;",
+      justifyContent: "space-between;",
+      padding: "0px;"
+    });
+    return s.to_styles_string();
   };
 
   // src/rectangle.ts
@@ -805,6 +747,108 @@
     });
   }
 
+  // src/game_menu/game_menu.ts
+  var template = document.createElement("template");
+  template.innerHTML = `
+  <style>
+    div {
+      background-color: rgba(50, 50, 50, 0.5);
+      position: absolute;
+      width: ${CANVAS_WIDTH}px;
+      height: ${CANVAS_HEIGHT}px;
+      inset: 0;
+      color: white;
+    }
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      list-style-type: none;
+    }
+
+    ::slotted(li) {
+      cursor: pointer;
+    }
+  </style>
+
+  <div>
+    <ul>
+      <slot></slot>
+    </ul>
+  </div
+`;
+  var GameMenu = class extends HTMLElement {
+    constructor() {
+      super();
+      const shadowDOM = this.attachShadow({ mode: "open" });
+      shadowDOM.append(template.content.cloneNode(true));
+    }
+    // todo: attach event listeners for key
+    // add selected item - first slot item
+    // add styling for the selected item
+    // arrow down, arrow up
+    connectedCallback() {
+      console.log("connected");
+    }
+    // called on querySelector("").remove() <- todo: add to menu lifecycle methods
+    // remove event listeners
+    disconnectedCallback() {
+      console.log("disconnected");
+    }
+  };
+
+  // src/renderer.ts
+  function h(tag, props, ...children) {
+    return { tag, props, children };
+  }
+  function createElement(vnode) {
+    if (typeof vnode === "string") {
+      return document.createTextNode(vnode);
+    }
+    const element = document.createElement(vnode.tag);
+    if (vnode.props) {
+      Object.entries(vnode.props).forEach(([key, value]) => {
+        if (key === "is") {
+          element.setAttribute("is", value);
+        } else if (key === "style") {
+          element.setAttribute("style", value);
+        } else {
+          element[key] = value;
+        }
+      });
+    }
+    if (vnode.children) {
+      vnode.children.flat().forEach((child) => {
+        element.appendChild(createElement(child));
+      });
+    }
+    return element;
+  }
+
+  // src/game_menu/menu.tsx
+  var menu = createElement(
+    /* @__PURE__ */ h("game-menu", null, /* @__PURE__ */ h("li", null, "New game"), /* @__PURE__ */ h("li", null, "Resume"))
+  );
+  var isDisplayed = false;
+  var menuManager = {
+    show: () => {
+      if (isDisplayed) return;
+      isDisplayed = true;
+      ctx.root.appendChild(menu);
+    },
+    hide: () => {
+      if (!isDisplayed) return;
+      isDisplayed = false;
+      ctx.root.removeChild(menu);
+    }
+  };
+
   // src/main.ts
   function main() {
     let root = document.getElementById("root");
@@ -817,7 +861,7 @@
     ctx.game = new Game();
     ctx.board = new Board();
     ctx.queue_element = queue_panel;
-    ctx.game_menu = new GameMenu();
+    customElements.define("game-menu", GameMenu);
     registerGameEffects(ctx);
     function game_loop() {
       requestAnimationFrame(game_loop);
@@ -826,7 +870,7 @@
           return ctx.game.update();
         }
         case "not_started":
-          return ctx.game_menu.show();
+          return menuManager.show();
       }
     }
     game_loop();

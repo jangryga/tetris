@@ -4,9 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "tsx index.ts",
-    "bundle": "esbuild index.ts --bundle --outdir=dist",
-    "bundle:dev": "esbuild index.ts --bundle --outdir=dist --watch"
+    "bundle": "esbuild index.ts --bundle --loader:.ts=tsx --jsx-factory=h --jsx-fragment=Fragment --outdir=dist",
+    "bundle:dev": "esbuild index.ts --bundle --loader:.ts=tsx --jsx-factory=h --jsx-fragment=Fragment --outdir=dist --watch"
   },
   "devDependencies": {
     "@types/node": "^22.5.3",
